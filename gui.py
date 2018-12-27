@@ -6,11 +6,29 @@ from collections import OrderedDict
 from igra import  *
 
 pygame.init()
-
+pygame.mouse.set_visible(True)
 screen = pygame.display.set_mode((640,480))
-igra = Igra()
+clock = pygame.time.Clock()
 font = pygame.font.SysFont("monospace", 30)
+igra = Igra()
 
+def start_nivo(nivo):
+    igra.ucitaj_nivo(nivo)
+    glavni_meni.aktivan = False
+    pygame.mouse.set_visible(False)
+    while igra.pokrenuto:
+        igra.azuriraj()
+        iscrtaj_nivo()
+        handle_game_event()
+        pygame.display.update()
+        if igra.zavrsena_igra or igra.predjen_nivo or igra.restartuj_nivo:
+            pygame.time.delay(3000)
+        if igra.izgubljeni_zivoti:
+            pygame.time.delay(1000)
+        if igra.restartuj_nivo:
+            igra.restartuj_nivo = False
+            igra._start_timer()
+        #clock.tick(FPS)
 
 def napusti_igru():
     pygame.quit()
@@ -35,23 +53,7 @@ def zapocni_igru_sa_jednim_igracem():
 
 
 
-def start_nivo(nivo):
-    igra.ucitaj_nivo(nivo)
-    glavni_meni.aktivan = False
-    pygame.mouse.set_visible(False)
-    while igra.pokrenuto:
-        igra.azuriraj()
-        iscrtaj_nivo()
-        handle_game_event()
-        pygame.display.update()
-        if igra.zavrsena_igra or igra.predjen_nivo or igra.restartuj_nivo:
-            pygame.time.delay(3000)
-        if igra.izgubljeni_zivoti:
-            pygame.time.delay(1000)
-        if igra.restartuj_nivo:
-            igra.restartuj_nivo = False
-            #game._start_timer()
-        #clock.tick(FPS)
+
 
 
 def jedan_igrac():
@@ -78,17 +80,51 @@ glavni_meni = Meni(
 
 #ucitan_level = Meni(screen, OrderedDict("level"))
 
-def handle_menu_event(glavni_meni):
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            napusti_igru()
-        elif event.type == MOUSEBUTTONUP:
-            for option in glavni_meni.opcije:
-                if option.is_selected:
-                    if not isinstance(option.function, tuple):
-                        option.function()
-                    else:
-                        option.function[0](option.function[1])
+def iscrtaj_loptu(lopta):
+    screen.blit(lopta.slika, lopta.rect)
+
+def iscrtaj_igraca(igrac):
+    screen.blit(igrac.slika, igrac.rect)
+
+def iscrtaj_oruzje(oruzje):
+    screen.blit(oruzje.slika, oruzje.rect)
+
+
+def ispisi_poruku(poruka, boja):
+    labela = font.render(poruka, 1, boja)
+    rect = labela.get_rect()
+    rect.centerx = screen.get_rect().centerx
+    rect.centery = screen.get_rect().centery
+    screen.blit(labela, rect)
+
+def iscrtaj_zivote(igrac, prvi_igrac=True):
+    slika_igraca = pygame.transform.scale(igrac.slika, (20, 20))
+    rect = slika_igraca.get_rect()
+    for broj_zivota in range(igrac.zivoti):
+        if not prvi_igrac:
+            screen.blit(slika_igraca, ((broj_zivota + 1) * 20, 10))
+        else:
+            screen.blit(
+                slika_igraca,
+                (640 - (broj_zivota + 1) * 20 - rect.width, 10)
+            )
+
+def iscrtaj_nivo():
+    screen.fill((255, 255, 255))
+    for lopta in igra.lopte:
+        iscrtaj_loptu(lopta)
+    for index, igrac in enumerate(igra.igraci):
+        if igrac.oruzje.ziv:
+            iscrtaj_oruzje(igrac.oruzje)
+        iscrtaj_igraca(igrac)
+        iscrtaj_zivote(igrac, index)       #draw_timer()
+    if igra.zavrsena_igra:
+        ispisi_poruku('Game over!', (255, 0, 0))
+        pokreni_meni()
+    if igra.predjen_nivo:
+        ispisi_poruku('Well done! Level completed!', (0, 0, 255))
+    if igra.restartuj_nivo:
+        ispisi_poruku('Get ready!', (0, 0, 255))
 
 def handle_game_event():
         for event in pygame.event.get():
@@ -122,53 +158,15 @@ def handle_game_event():
             if event.type == QUIT:
                 napusti_igru()
 
-def iscrtaj_loptu(lopta):
-    screen.blit(lopta.slika, lopta.rect)
+def handle_menu_event(glavni_meni):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            napusti_igru()
+        elif event.type == MOUSEBUTTONUP:
+            for option in glavni_meni.opcije:
+                if option.is_selected:
+                    if not isinstance(option.function, tuple):
+                        option.function()
+                    else:
+                        option.function[0](option.function[1])
 
-def iscrtaj_oruzje(oruzje):
-    screen.blit(oruzje.slika, oruzje.rect)
-
-def iscrtaj_igraca(igrac):
-    screen.blit(igrac.slika, igrac.rect)
-
-def iscrtaj_zivote(igrac, prvi_igrac=True):
-    slika_igraca = pygame.transform.scale(igrac.slika, (20, 20))
-    rect = slika_igraca.get_rect()
-    for broj_zivota in range(igrac.zivoti):
-        if not prvi_igrac:
-            screen.blit(slika_igraca, ((broj_zivota + 1) * 20, 10))
-        else:
-            screen.blit(
-                slika_igraca,
-                (640 - (broj_zivota + 1) * 20 - rect.width, 10)
-            )
-
-def ispisi_poruku(poruka, boja):
-    labela = font.render(poruka, 1, boja)
-    rect = labela.get_rect()
-    rect.centerx = screen.get_rect().centerx
-    rect.centery = screen.get_rect().centery
-    screen.blit(labela, rect)
-
-
-
-def iscrtaj_nivo():
-    screen.fill((255, 255, 255))
-    for lopta in igra.lopte:
-        iscrtaj_loptu(lopta)
-    for index, igrac in enumerate(igra.igraci):
-        if igrac.oruzje.ziv:
-            iscrtaj_oruzje(igrac.oruzje)
-        iscrtaj_igraca(igrac)
-        iscrtaj_zivote(igrac, index)
-
-    #draw_timer()
-    if igra.zavrsena_igra:
-        ispisi_poruku('Game over!', (255, 0, 0))
-        pokreni_meni()
-
-
-    if igra.predjen_nivo:
-        ispisi_poruku('Well done! Level completed!', (0, 0, 255))
-    if igra.restartuj_nivo:
-        ispisi_poruku('Get ready!', (0, 0, 255))

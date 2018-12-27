@@ -38,9 +38,9 @@ class Meni():
     def __init__(self, screen, funkcije,bg_color = (0,0,0)):
         self.aktivan = True
         self.screen = screen
-        self.bg_color = bg_color
         self.sirina_prozora = self.screen.get_rect().width
         self.visina_prozora = self.screen.get_rect().height
+        self.bg_color = bg_color
         self.opcije = []
         self.trenutna_opcija = None
         self.funkcije = funkcije
