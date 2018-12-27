@@ -1,9 +1,7 @@
 from pygame.locals import *
-import sys
-from meni import *
 from collections import OrderedDict
-
-from igra import  *
+from meni import *
+from igra import *
 
 pygame.init()
 pygame.mouse.set_visible(True)
@@ -28,11 +26,16 @@ def start_nivo(nivo):
         if igra.restartuj_nivo:
             igra.restartuj_nivo = False
             igra._start_timer()
-        #clock.tick(FPS)
+        clock.tick(30)
 
-def napusti_igru():
-    pygame.quit()
-    sys.exit()
+
+def pokreni_meni():
+    while glavni_meni.aktivan:
+        glavni_meni.draw()
+        handle_menu_event(glavni_meni)
+        pygame.display.update()
+        clock.tick(30)
+
 
 def zapocni_igru_sa_jednim_igracem():
     brojac = 1
@@ -40,6 +43,7 @@ def zapocni_igru_sa_jednim_igracem():
         if not igra.zavrsena_igra:
             start_nivo(brojac)
             brojac+=1
+            clock.tick(30)
         else:
             break
 
@@ -52,8 +56,9 @@ def zapocni_igru_sa_jednim_igracem():
 
 
 
-
-
+def napusti_igru():
+    pygame.quit()
+    sys.exit()
 
 
 def jedan_igrac():
@@ -63,13 +68,6 @@ def jedan_igrac():
 def dva_igraca():
     print("dugme 2")
 
-def pokreni_meni():
-    while glavni_meni.aktivan:
-        glavni_meni.draw()
-        handle_menu_event(glavni_meni)
-        pygame.display.update()
-
-
 glavni_meni = Meni(
     screen, OrderedDict(
         [('Izadji', napusti_igru),
@@ -77,6 +75,7 @@ glavni_meni = Meni(
          ('2 igraca', dva_igraca)]
     )
 )
+
 
 #ucitan_level = Meni(screen, OrderedDict("level"))
 
@@ -96,6 +95,14 @@ def ispisi_poruku(poruka, boja):
     rect.centerx = screen.get_rect().centerx
     rect.centery = screen.get_rect().centery
     screen.blit(labela, rect)
+
+
+def iscrtaj_vreme():
+    timer = font.render(str(igra.preostalo_vreme), 1, (255,0,0))
+    rect = timer.get_rect()
+    rect.bottomleft = 10, 480 - 10
+    screen.blit(timer, rect)
+
 
 def iscrtaj_zivote(igrac, prvi_igrac=True):
     slika_igraca = pygame.transform.scale(igrac.slika, (20, 20))
@@ -117,7 +124,8 @@ def iscrtaj_nivo():
         if igrac.oruzje.ziv:
             iscrtaj_oruzje(igrac.oruzje)
         iscrtaj_igraca(igrac)
-        iscrtaj_zivote(igrac, index)       #draw_timer()
+        iscrtaj_zivote(igrac, index)
+    iscrtaj_vreme()
     if igra.zavrsena_igra:
         ispisi_poruku('Game over!', (255, 0, 0))
         pokreni_meni()
@@ -130,11 +138,11 @@ def handle_game_event():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_LEFT:
-                    igra.igraci[0].moving_left = True
+                    igra.igraci[0].levo = True
                 elif event.key == K_RIGHT:
-                    igra.igraci[0].moving_right = True
-                #elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
-                  #  igra.igraci[0].shoot()
+                    igra.igraci[0].desno = True
+                elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
+                    igra.igraci[0].pucaj()
                 elif event.key == K_ESCAPE:
                     napusti_igru()
                 if igra.dva_igraca:
@@ -142,9 +150,9 @@ def handle_game_event():
                         igra.igraci[1].levo = True
                     elif event.key == K_d:
                         igra.igraci[1].desno = True
-                   # elif event.key == K_LCTRL and \
-                           # not igra.igraci[1].oruzje.ziv:
-                        #igra.igraci[1].shoot()
+                    elif event.key == K_LCTRL and \
+                           not igra.igraci[1].oruzje.ziv:
+                        igra.igraci[1].pucaj()
             if event.type == KEYUP:
                 if event.key == K_LEFT:
                     igra.igraci[0].levo = False

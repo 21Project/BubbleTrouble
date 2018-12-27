@@ -1,4 +1,3 @@
-import pygame
 import sys
 
 from lopta import  *
@@ -37,7 +36,7 @@ class Igra:
         x = 200
         y = 250
         velicina = 2
-        brzina = [1, 0]
+        brzina = [3, 0]
         self.preostalo_vreme = 20
         self.lopte.append(Lopta(x, y, velicina, brzina))
         self._start_timer()
@@ -45,8 +44,43 @@ class Igra:
     def _start_timer(self):
         self._timer(1, self._tick_second, self.preostalo_vreme)
 
+    def _check_for_collisions(self):
+        for igrac in self.igraci:
+            self._check_for_bubble_collision(self.lopte, igrac)
+
+
+    def _check_for_bubble_collision(self, loptice, igrac):
+        for index, loptica in enumerate(loptice):
+            if pygame.sprite.collide_rect(loptica, igrac.oruzje) \
+                    and igrac.oruzje.ziv:
+                igrac.oruzje.ziv = False
+                self._split_ball(index)
+                return True
+            if pygame.sprite.collide_mask(loptica, igrac):
+                igrac.ziv = False
+                self._decrease_lives(igrac)
+                return True
+        return False
+
+    def _decrease_lives(self, igrac):
+        igrac.zivoti -= 1
+        if igrac.zivoti:
+            self.izgubljeni_zivoti = True
+            igrac.ziv = False
+        else:
+            self.zavrsena_igra = True
+
     def restart(self):
         self.ucitaj_nivo(self.nivo)
+
+    def _split_ball(self, index_loptice):
+        lopta = self.lopte[index_loptice]
+        if lopta.velicina > 1:
+            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -5]))
+            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [3, -5]))
+        del self.lopte[index_loptice]
+
+
 
     def azuriraj(self):
         if self.predjen_nivo:
@@ -57,7 +91,7 @@ class Igra:
             sys.exit()
         if self.izgubljeni_zivoti:
             self.restart()
-        #kolizija         self._check_for_collisions()
+        self._check_for_collisions()
         for lopta in self.lopte:
             lopta.azuriraj()
         for igrac in self.igraci:
@@ -79,6 +113,6 @@ class Igra:
 
     def _tick_second(self):
         self.preostalo_vreme -= 1
-        #if self.preostalo_vreme == 0:
-            #for igrac in self.igraci:
-                #self._decrease_lives(igrac)
+        if self.preostalo_vreme == 0:
+            for igrac in self.igraci:
+                self._decrease_lives(igrac)
