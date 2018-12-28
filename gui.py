@@ -54,6 +54,15 @@ def zapocni_igru_sa_jednim_igracem():
        # pygame.display.update()
         #clock.tick(FPS)
 
+def zapocni_igru_sa_dva_igraca():
+    brojac = 1
+    while True:
+        if not igra.zavrsena_igra:
+            start_nivo(brojac)
+            brojac+=1
+            clock.tick(30)
+        else:
+            break
 
 
 def napusti_igru():
@@ -66,7 +75,8 @@ def jedan_igrac():
     zapocni_igru_sa_jednim_igracem()
 
 def dva_igraca():
-    print("dugme 2")
+    igra.dva_igraca = True
+    zapocni_igru_sa_dva_igraca()
 
 glavni_meni = Meni(
     screen, OrderedDict(
@@ -150,7 +160,7 @@ def handle_game_event():
                         igra.igraci[1].levo = True
                     elif event.key == K_d:
                         igra.igraci[1].desno = True
-                    elif event.key == K_LCTRL and \
+                    elif event.key == K_w and \
                            not igra.igraci[1].oruzje.ziv:
                         igra.igraci[1].pucaj()
             if event.type == KEYUP:

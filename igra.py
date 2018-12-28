@@ -20,6 +20,8 @@ class Igra:
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
+        if self.dva_igraca and len(self.igraci) == 1:
+            self.igraci.append(Igrac('igrac2.png'))
         self.lopte = []
         self.izgubljeni_zivoti = False  #dead_player
         for index, igrac in enumerate(self.igraci):
@@ -60,6 +62,7 @@ class Igra:
             if pygame.sprite.collide_rect(loptica, igrac):  #collide_mask
                 igrac.ziv = False
                 self._decrease_lives(igrac)
+                self._proveri_zivote()
                 return True
         return False
 
@@ -69,7 +72,23 @@ class Igra:
             self.izgubljeni_zivoti = True
             igrac.ziv = False
         else:
+            self.igraci.remove(igrac)
+            self.dva_igraca = False
+            if self.igraci:
+                self.restartuj_nivo = True
+                self.restart()
+            #self.zavrsena_igra = True
+
+    def _proveri_zivote(self):
+        provera = False
+        for index in self.igraci:
+            if index.zivoti > 0:
+                provera = True
+        if not provera:
             self.zavrsena_igra = True
+        #if self.igraci[0].zivoti == 0 and self.igraci[1].zivoti == 0:
+            #self.zavrsena_igra = True
+
 
     def restart(self):
         self.ucitaj_nivo(self.nivo)
