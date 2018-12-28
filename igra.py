@@ -9,7 +9,7 @@ class Igra:
         self.nivo = nivo
         self.dva_igraca = False
         self.lopte = []
-        self.igraci = [Igrac()]  #igrac class
+        self.igraci = [Igrac()]
         self.zavrsena_igra = False
         self.predjen_nivo = False
         self.restartuj_nivo = False
@@ -22,8 +22,6 @@ class Igra:
         self.restartuj_nivo = True
         self.lopte = []
         self.izgubljeni_zivoti = False  #dead_player
-        #if self.dva_igraca and len(self.igraci) == 1:
-        #self.igraci.append(Igrac("igrac1.png"))    #igrac class
         for index, igrac in enumerate(self.igraci):
             index_igraca = index + 1
             broj_igraca = len(self.igraci)
@@ -33,12 +31,15 @@ class Igra:
             igrac.ziv = True
         self.nivo = nivo
         self.predjen_nivo = False
-        x = 200
-        y = 250
-        velicina = 2
-        brzina = [3, 0]
-        self.preostalo_vreme = 20
-        self.lopte.append(Lopta(x, y, velicina, brzina))
+        self._set_nivo(nivo)
+       #x = 200
+        #y = 250
+        #velicina = 2
+        #brzina = [6, 6]
+        #self.preostalo_vreme = 40
+        #self.lopte.append(Lopta(x, y, velicina, brzina))
+        #self.lopte.append(Lopta(x, y, velicina, brzina))
+
         self._start_timer()
 
     def _start_timer(self):
@@ -56,7 +57,7 @@ class Igra:
                 igrac.oruzje.ziv = False
                 self._split_ball(index)
                 return True
-            if pygame.sprite.collide_mask(loptica, igrac):
+            if pygame.sprite.collide_rect(loptica, igrac):  #collide_mask
                 igrac.ziv = False
                 self._decrease_lives(igrac)
                 return True
@@ -116,3 +117,19 @@ class Igra:
         if self.preostalo_vreme == 0:
             for igrac in self.igraci:
                 self._decrease_lives(igrac)
+
+    def _set_nivo(self, nivo):
+        velicina = nivo % 4
+        if velicina == 0:
+            velicina+=4
+        br_lopti = nivo//4
+        if not nivo % 4 == 0:
+            br_lopti += 1
+        vreme = nivo + 19
+        x = 200
+        y = 250
+        self.preostalo_vreme = vreme
+        for i in range(1, br_lopti+1):
+            self.lopte.append(Lopta(x, y, velicina, [3, 0]))
+            x-=10
+            y-=10
