@@ -155,24 +155,39 @@ def handle_game_event():
                     igra.igraci[0].pucaj()
                 elif event.key == K_ESCAPE:
                     napusti_igru()
-                if igra.dva_igraca:
-                    if event.key == K_a:
-                        igra.igraci[1].levo = True
-                    elif event.key == K_d:
-                        igra.igraci[1].desno = True
-                    elif event.key == K_w and \
-                           not igra.igraci[1].oruzje.ziv:
-                        igra.igraci[1].pucaj()
+                if igra.drugi_igrac:
+                    if igra.prvi_igrac == False:
+                        if event.key == K_a:
+                            igra.igraci[0].levo = True
+                        elif event.key == K_d:
+                            igra.igraci[0].desno = True
+                        elif event.key == K_w and \
+                                not igra.igraci[0].oruzje.ziv:
+                            igra.igraci[0].pucaj()
+                    else:
+                        if event.key == K_a:
+                            igra.igraci[1].levo = True
+                        elif event.key == K_d:
+                            igra.igraci[1].desno = True
+                        elif event.key == K_w and \
+                               not igra.igraci[1].oruzje.ziv:
+                            igra.igraci[1].pucaj()
             if event.type == KEYUP:
                 if event.key == K_LEFT:
                     igra.igraci[0].levo = False
                 elif event.key == K_RIGHT:
                     igra.igraci[0].desno = False
-                if igra.dva_igraca:
-                    if event.key == K_a:
-                        igra.igraci[1].levo = False
-                    elif event.key == K_d:
-                        igra.igraci[1].desno = False
+                if igra.drugi_igrac:
+                    if igra.prvi_igrac == False:
+                        if event.key == K_a:
+                            igra.igraci[0].levo = False
+                        elif event.key == K_d:
+                            igra.igraci[0].desno = False
+                    else:
+                        if event.key == K_a:
+                            igra.igraci[1].levo = False
+                        elif event.key == K_d:
+                            igra.igraci[1].desno = False
             if event.type == QUIT:
                 napusti_igru()
 

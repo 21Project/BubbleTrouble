@@ -7,6 +7,8 @@ from threading import Timer
 class Igra:
     def __init__(self, nivo = 1):
         self.nivo = nivo
+        self.prvi_igrac = True
+        self.drugi_igrac = False
         self.dva_igraca = False
         self.lopte = []
         self.igraci = [Igrac()]
@@ -22,6 +24,7 @@ class Igra:
         self.restartuj_nivo = True
         if self.dva_igraca and len(self.igraci) == 1:
             self.igraci.append(Igrac('igrac2.png'))
+            self.drugi_igrac = True
         self.lopte = []
         self.izgubljeni_zivoti = False  #dead_player
         for index, igrac in enumerate(self.igraci):
@@ -81,13 +84,15 @@ class Igra:
 
     def _proveri_zivote(self):
         provera = False
+        brojac = 0;
         for index in self.igraci:
             if index.zivoti > 0:
                 provera = True
+            brojac += 1
+
         if not provera:
             self.zavrsena_igra = True
-        #if self.igraci[0].zivoti == 0 and self.igraci[1].zivoti == 0:
-            #self.zavrsena_igra = True
+
 
 
     def restart(self):
