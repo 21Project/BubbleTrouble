@@ -24,6 +24,7 @@ class Igra:
         self.restartuj_nivo = True
         if self.dva_igraca and len(self.igraci) == 1:
             self.igraci.append(Igrac('igrac2.png'))
+            self.igraci[1].prvi_igrac = False
             self.drugi_igrac = True
         self.lopte = []
         self.izgubljeni_zivoti = False  #dead_player
@@ -75,6 +76,10 @@ class Igra:
             self.izgubljeni_zivoti = True
             igrac.ziv = False
         else:
+            if igrac.prvi_igrac == True:
+                self.prvi_igrac = False
+            else:
+                self.drugi_igrac = False
             self.igraci.remove(igrac)
             self.dva_igraca = False
             if self.igraci:
@@ -84,15 +89,11 @@ class Igra:
 
     def _proveri_zivote(self):
         provera = False
-        brojac = 0;
         for index in self.igraci:
             if index.zivoti > 0:
                 provera = True
-            brojac += 1
-
         if not provera:
             self.zavrsena_igra = True
-
 
 
     def restart(self):

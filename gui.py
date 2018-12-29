@@ -71,12 +71,36 @@ def napusti_igru():
 
 
 def jedan_igrac():
+    igra.pokrenuto = True
+    igra.zavrsena_igra = False
+    igra.prvi_igrac = True
+    igra.drugi_igrac = False
+    igra.dva_igraca = True
+    igra.igraci = [Igrac()]
+    igra.lopte = []
+    igra.predjen_nivo = False
+    igra.restartuj_nivo = False
+    igra.izgubljeni_zivoti = False
+    igra.preostalo_vreme = 0
     igra.dva_igraca = False
     zapocni_igru_sa_jednim_igracem()
 
+
 def dva_igraca():
+    igra.pokrenuto = True
+    igra.zavrsena_igra = False
+    igra.prvi_igrac = True
+    igra.drugi_igrac = False
+    igra.dva_igraca = True
+    igra.igraci = [Igrac()]
+    igra.lopte = []
+    igra.predjen_nivo = False
+    igra.restartuj_nivo = False
+    igra.izgubljeni_zivoti = False
+    igra.preostalo_vreme = 0
     igra.dva_igraca = True
     zapocni_igru_sa_dva_igraca()
+
 
 glavni_meni = Meni(
     screen, OrderedDict(
@@ -138,6 +162,10 @@ def iscrtaj_nivo():
     iscrtaj_vreme()
     if igra.zavrsena_igra:
         ispisi_poruku('Game over!', (255, 0, 0))
+        igra.pokrenuto = False
+        clock.tick(30)
+        pygame.mouse.set_visible(True)
+        glavni_meni.aktivan =True
         pokreni_meni()
     if igra.predjen_nivo:
         ispisi_poruku('Well done! Level completed!', (0, 0, 255))

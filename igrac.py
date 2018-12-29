@@ -10,6 +10,7 @@ class Igrac(pygame.sprite.Sprite):
         self.zivoti = 3
         self.pocetna_pozicija()
         self.ziv = True
+        self.prvi_igrac = True
 
     def pucaj(self):
         self.oruzje = Oruzje(self.rect.centerx, self.rect.top)
