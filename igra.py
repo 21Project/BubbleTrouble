@@ -103,9 +103,26 @@ class Igra:
     def _split_ball(self, index_loptice):
         lopta = self.lopte[index_loptice]
         if lopta.velicina > 1:
+            # print("bottom1 " + str(self.lopte[index_loptice].rect.bottom))
+            # print("top1 " + str(self.lopte[index_loptice].rect.top))
+            #print("igrac top" + str(self.igraci[0].rect.top))
+            #print("igrac bottom" + str(self.igraci[0].rect.bottom))
+
+            # if lopta.rect.bottom < 440:
+            #     print("udji u if")
+            #     self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top - 60, lopta.velicina - 1,
+            #                             [-3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
+            #     self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top - 60, lopta.velicina - 1,
+            #                             [3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
+            # else:
+            #print("udji u else")
             self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
             #self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top - 10, lopta.velicina - 1,[-3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
             self.lopte.append(Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
+            # self.lopte.insert(len(self.lopte),Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 100, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
+            # self.lopte.insert(len(self.lopte),Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 100, lopta.velicina - 1, [3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
+            # print("bottom " + str(self.lopte[len(self.lopte)-1].rect.bottom))
+            # print("top " + str(self.lopte[len(self.lopte)-1].rect.top))
         del self.lopte[index_loptice]
 
 
@@ -158,5 +175,5 @@ class Igra:
         self.preostalo_vreme = vreme
         for i in range(1, br_lopti+1):
             self.lopte.append(Lopta(x, y, velicina, [3, velicina * math.fabs(math.sin(3))]))
-            x-=10
-            y-=10
+            x-=30
+            y-=30
