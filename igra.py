@@ -85,7 +85,8 @@ class Igra:
             if self.igraci:
                 self.restartuj_nivo = True
                 self.restart()
-            #self.zavrsena_igra = True
+            else:
+                self.zavrsena_igra = True
 
     def _proveri_zivote(self):
         provera = False
@@ -102,8 +103,9 @@ class Igra:
     def _split_ball(self, index_loptice):
         lopta = self.lopte[index_loptice]
         if lopta.velicina > 1:
-            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -5]))
-            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [3, -5]))
+            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
+            #self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top - 10, lopta.velicina - 1,[-3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
+            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
         del self.lopte[index_loptice]
 
 
@@ -113,8 +115,8 @@ class Igra:
             self.ucitaj_nivo(self.nivo + 1)
         if self.zavrsena_igra:
             self.pokrenuto = False
-            pygame.quit()
-            sys.exit()
+            #pygame.quit()
+            #sys.exit()
         if self.izgubljeni_zivoti:
             self.restart()
         self._check_for_collisions()
@@ -155,6 +157,6 @@ class Igra:
         y = 250
         self.preostalo_vreme = vreme
         for i in range(1, br_lopti+1):
-            self.lopte.append(Lopta(x, y, velicina, [3, 0]))
+            self.lopte.append(Lopta(x, y, velicina, [3, velicina * math.fabs(math.sin(3))]))
             x-=10
             y-=10

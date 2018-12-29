@@ -1,4 +1,5 @@
 import pygame
+import math
 
 from konfiguracija import *
 
@@ -10,6 +11,8 @@ class Lopta(pygame.sprite.Sprite):
         self.rect = self.slika.get_rect(centerx=x, centery=y)
         self.velicina = velicina
         self.brzina = brzina
+
+
 
     def azuriraj(self):
         self.brzina[1] += 1  # gravity

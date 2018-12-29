@@ -19,8 +19,10 @@ def start_nivo(nivo):
         iscrtaj_nivo()
         handle_game_event()
         pygame.display.update()
-        if igra.zavrsena_igra or igra.predjen_nivo or igra.restartuj_nivo:
-            pygame.time.delay(3000)
+        # if igra.zavrsena_igra:
+        #     print("uslo u if za zavrsena_igra")
+        if igra.predjen_nivo or igra.restartuj_nivo:
+            pygame.time.delay(2000)
         if igra.izgubljeni_zivoti:
             pygame.time.delay(1000)
         if igra.restartuj_nivo:
@@ -30,6 +32,8 @@ def start_nivo(nivo):
 
 
 def pokreni_meni():
+    glavni_meni.aktivan = True
+    igra.pokrenuto = False
     while glavni_meni.aktivan:
         glavni_meni.draw()
         handle_menu_event(glavni_meni)
@@ -41,6 +45,7 @@ def zapocni_igru_sa_jednim_igracem():
     brojac = 1
     while True:
         if not igra.zavrsena_igra:
+            #igra.nivo = brojac
             start_nivo(brojac)
             brojac+=1
             clock.tick(30)
@@ -130,13 +135,17 @@ def ispisi_poruku(poruka, boja):
     rect.centery = screen.get_rect().centery
     screen.blit(labela, rect)
 
-
 def iscrtaj_vreme():
     timer = font.render(str(igra.preostalo_vreme), 1, (255,0,0))
     rect = timer.get_rect()
     rect.bottomleft = 10, 480 - 10
     screen.blit(timer, rect)
 
+def iscrtaj_nivoe():
+    level = font.render(str(igra.nivo),1,(255,0,0))
+    rect = level.get_rect()
+    rect.bottomright = 640 - 10 ,480 -10
+    screen.blit(level,rect)
 
 def iscrtaj_zivote(igrac, prvi_igrac=True):
     slika_igraca = pygame.transform.scale(igrac.slika, (20, 20))
@@ -160,12 +169,14 @@ def iscrtaj_nivo():
         iscrtaj_igraca(igrac)
         iscrtaj_zivote(igrac, index)
     iscrtaj_vreme()
+    iscrtaj_nivoe()
     if igra.zavrsena_igra:
-        ispisi_poruku('Game over!', (255, 0, 0))
-        igra.pokrenuto = False
-        clock.tick(30)
+        ispisi_poruku('Game over!', (0, 0, 255))
+        pygame.display.update()
+        pygame.time.delay(3000)
         pygame.mouse.set_visible(True)
-        glavni_meni.aktivan =True
+        #igra.pokrenuto = False
+        #glavni_meni.aktivan =True
         pokreni_meni()
     if igra.predjen_nivo:
         ispisi_poruku('Well done! Level completed!', (0, 0, 255))
@@ -175,14 +186,15 @@ def iscrtaj_nivo():
 def handle_game_event():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
-                if event.key == K_LEFT:
-                    igra.igraci[0].levo = True
-                elif event.key == K_RIGHT:
-                    igra.igraci[0].desno = True
-                elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
-                    igra.igraci[0].pucaj()
-                elif event.key == K_ESCAPE:
-                    napusti_igru()
+                if igra.prvi_igrac:
+                    if event.key == K_LEFT:
+                        igra.igraci[0].levo = True
+                    elif event.key == K_RIGHT:
+                        igra.igraci[0].desno = True
+                    elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
+                        igra.igraci[0].pucaj()
+                    elif event.key == K_ESCAPE:
+                        napusti_igru()
                 if igra.drugi_igrac:
                     if igra.prvi_igrac == False:
                         if event.key == K_a:
@@ -201,10 +213,11 @@ def handle_game_event():
                                not igra.igraci[1].oruzje.ziv:
                             igra.igraci[1].pucaj()
             if event.type == KEYUP:
-                if event.key == K_LEFT:
-                    igra.igraci[0].levo = False
-                elif event.key == K_RIGHT:
-                    igra.igraci[0].desno = False
+                if igra.prvi_igrac:
+                    if event.key == K_LEFT:
+                        igra.igraci[0].levo = False
+                    elif event.key == K_RIGHT:
+                        igra.igraci[0].desno = False
                 if igra.drugi_igrac:
                     if igra.prvi_igrac == False:
                         if event.key == K_a:
