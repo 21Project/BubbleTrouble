@@ -1,8 +1,9 @@
 import sys
-
-from lopta import  *
+import random
+from lopta import *
 from igrac import *
 from threading import Timer
+from bonusi import *
 
 class Igra:
     def __init__(self, nivo = 1):
@@ -11,6 +12,7 @@ class Igra:
         self.drugi_igrac = False
         self.dva_igraca = False
         self.lopte = []
+        self.bonusi = []
         self.igraci = [Igrac()]
         self.zavrsena_igra = False
         self.predjen_nivo = False
@@ -18,7 +20,7 @@ class Igra:
         self.izgubljeni_zivoti = False
         self.pokrenuto = True
         self.preostalo_vreme = 0
-
+        self.pobednik = 0
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
@@ -27,6 +29,7 @@ class Igra:
             self.igraci[1].prvi_igrac = False
             self.drugi_igrac = True
         self.lopte = []
+        self.bonusi = []
         self.izgubljeni_zivoti = False  #dead_player
         for index, igrac in enumerate(self.igraci):
             index_igraca = index + 1
@@ -54,6 +57,7 @@ class Igra:
     def _check_for_collisions(self):
         for igrac in self.igraci:
             self._check_for_bubble_collision(self.lopte, igrac)
+            self._check_for_bonus_collision(igrac)
 
 
     def _check_for_bubble_collision(self, loptice, igrac):
@@ -70,6 +74,14 @@ class Igra:
                 return True
         return False
 
+    def _check_for_bonus_collision(self, igrac):
+        for bonus_index, bonus in enumerate(self.bonusi):
+            if pygame.sprite.collide_rect(bonus, igrac):
+                self._activate_bonus(bonus.tip, igrac)
+                del self.bonusi[bonus_index]
+                return True
+        return False
+
     def _decrease_lives(self, igrac):
         igrac.zivoti -= 1
         if igrac.zivoti:
@@ -78,8 +90,12 @@ class Igra:
         else:
             if igrac.prvi_igrac == True:
                 self.prvi_igrac = False
+                if self.dva_igraca:
+                    self.pobednik = 2
             else:
                 self.drugi_igrac = False
+                if self.dva_igraca:
+                    self.pobednik = 1
             self.igraci.remove(igrac)
             self.dva_igraca = False
             if self.igraci:
@@ -100,6 +116,18 @@ class Igra:
     def restart(self):
         self.ucitaj_nivo(self.nivo)
 
+    @staticmethod
+    def _drop_bonus():
+        if random.randrange(BONUS_DROP_RATE) == 0:
+            bonus_tip = random.choice(bonus_tipovi)
+            return bonus_tip
+
+    def _activate_bonus(self, bonus, igrac):
+        if bonus == BONUS_ZIVOT:
+            igrac.zivoti += 1
+        elif bonus == BONUS_VREME:
+            self.preostalo_vreme += 10
+
     def _split_ball(self, index_loptice):
         lopta = self.lopte[index_loptice]
         if lopta.velicina > 1:
@@ -116,14 +144,23 @@ class Igra:
             #                             [3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
             # else:
             #print("udji u else")
-            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
+
+
+            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[-3, 1]))
+            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[3, (lopta.velicina - 1) * math.fabs(math.sin(3))]))
+
+            # ovo valja self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
             #self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top - 10, lopta.velicina - 1,[-3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
-            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
+            # ovo valja self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top - 10, lopta.velicina - 1,[3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
             # self.lopte.insert(len(self.lopte),Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 100, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
             # self.lopte.insert(len(self.lopte),Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 100, lopta.velicina - 1, [3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
             # print("bottom " + str(self.lopte[len(self.lopte)-1].rect.bottom))
             # print("top " + str(self.lopte[len(self.lopte)-1].rect.top))
         del self.lopte[index_loptice]
+        bonus_tip = self._drop_bonus()
+        if bonus_tip:
+            bonus = Bonus(lopta.rect.centerx, lopta.rect.centery, bonus_tip)
+            self.bonusi.append(bonus)
 
 
 
@@ -141,6 +178,8 @@ class Igra:
             lopta.azuriraj()
         for igrac in self.igraci:
             igrac.azuriraj()
+        for bonus in self.bonusi:
+            bonus.azuriraj()
         if not self.lopte:
             self.predjen_nivo = True
 
@@ -173,7 +212,11 @@ class Igra:
         x = 200
         y = 250
         self.preostalo_vreme = vreme
+        #x = 100
         for i in range(1, br_lopti+1):
-            self.lopte.append(Lopta(x, y, velicina, [3, velicina * math.fabs(math.sin(3))]))
+
+            #y = x/2 * math.fabs(math.sin(x)) + velicina
+            #y = int(y)
+            self.lopte.append(Lopta(x, y, velicina, [3, 1])) #velicina * math.fabs(math.sin(3))
             x-=30
             y-=30
