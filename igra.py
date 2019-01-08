@@ -13,7 +13,7 @@ class Igra:
         self.dva_igraca = False
         self.lopte = []
         self.bonusi = []
-        self.igraci = [Igrac()]
+        self.igraci = [me]
         self.zavrsena_igra = False
         self.predjen_nivo = False
         self.restartuj_nivo = False
@@ -25,7 +25,7 @@ class Igra:
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
         if self.dva_igraca and len(self.igraci) == 1:
-            self.igraci.append(Igrac('igrac2.png'))
+            self.igraci.append(enemy)
             self.igraci[1].prvi_igrac = False
             self.drugi_igrac = True
         self.lopte = []

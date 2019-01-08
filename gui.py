@@ -20,6 +20,7 @@ def start_nivo(nivo):
         igra.azuriraj()
         iscrtaj_nivo()
         handle_game_event()
+        data_transfer()
         pygame.display.update()
         if igra.predjen_nivo or igra.restartuj_nivo:
             pygame.time.delay(2000)
@@ -75,7 +76,7 @@ def jedan_igrac():
     igra.prvi_igrac = True
     igra.drugi_igrac = False
     igra.dva_igraca = True
-    igra.igraci = [Igrac()]
+    igra.igraci = [me]
     igra.lopte = []
     igra.predjen_nivo = False
     igra.restartuj_nivo = False
@@ -92,7 +93,8 @@ def dva_igraca():
     igra.prvi_igrac = True
     igra.drugi_igrac = False
     igra.dva_igraca = True
-    igra.igraci = [Igrac()]
+    #igra.igraci = [Igrac_1()]
+    igra.igraci = [me]
     igra.lopte = []
     igra.predjen_nivo = False
     igra.restartuj_nivo = False
