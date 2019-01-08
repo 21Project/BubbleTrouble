@@ -4,6 +4,8 @@ from pygame.locals import *
 from collections import OrderedDict
 from meni import *
 from igra import *
+import threading
+
 
 pygame.init()
 pygame.mouse.set_visible(True)
@@ -13,14 +15,16 @@ font = pygame.font.SysFont("monospace", 30)
 igra = Igra()
 
 def start_nivo(nivo):
-    igra.ucitaj_nivo(nivo)
+    t = threading.Thread(target=igra.ucitaj_nivo, args=(nivo,))
+    t.start()
     glavni_meni.aktivan = False
     pygame.mouse.set_visible(False)
     while igra.pokrenuto:
         igra.azuriraj()
         iscrtaj_nivo()
         handle_game_event()
-        data_transfer()
+        if DVA_IGRACA:
+            data_transfer()
         pygame.display.update()
         if igra.predjen_nivo or igra.restartuj_nivo:
             pygame.time.delay(2000)
@@ -71,12 +75,13 @@ def napusti_igru():
 
 
 def jedan_igrac():
+    DVA_IGRACA = False
     igra.pokrenuto = True
     igra.zavrsena_igra = False
     igra.prvi_igrac = True
     igra.drugi_igrac = False
     igra.dva_igraca = True
-    igra.igraci = [me]
+    igra.igraci = [Igrac_1()]
     igra.lopte = []
     igra.predjen_nivo = False
     igra.restartuj_nivo = False
@@ -88,6 +93,7 @@ def jedan_igrac():
 
 
 def dva_igraca():
+    DVA_IGRACA = True
     igra.pokrenuto = True
     igra.zavrsena_igra = False
     igra.prvi_igrac = True

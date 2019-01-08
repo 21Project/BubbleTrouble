@@ -13,7 +13,10 @@ class Igra:
         self.dva_igraca = False
         self.lopte = []
         self.bonusi = []
-        self.igraci = [me]
+        if DVA_IGRACA:
+            self.igraci = [me]
+        else:
+            self.igraci = [Igrac_1()]
         self.zavrsena_igra = False
         self.predjen_nivo = False
         self.restartuj_nivo = False
@@ -41,14 +44,6 @@ class Igra:
         self.nivo = nivo
         self.predjen_nivo = False
         self._set_nivo(nivo)
-       #x = 200
-        #y = 250
-        #velicina = 2
-        #brzina = [6, 6]
-        #self.preostalo_vreme = 40
-        #self.lopte.append(Lopta(x, y, velicina, brzina))
-        #self.lopte.append(Lopta(x, y, velicina, brzina))
-
         self._start_timer()
 
     def _start_timer(self):
@@ -124,7 +119,8 @@ class Igra:
 
     def _activate_bonus(self, bonus, igrac):
         if bonus == BONUS_ZIVOT:
-            igrac.zivoti += 1
+            if igrac.zivoti < 5:
+                igrac.zivoti += 1
         elif bonus == BONUS_VREME:
             self.preostalo_vreme += 10
 

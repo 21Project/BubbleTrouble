@@ -90,6 +90,6 @@ def data_transfer():
         enemy.oruzje.rect.centerx = int(enemy_data[8:12])
         enemy.oruzje.rect.centery = int(enemy_data[12:16])
 
-
-me, enemy = define_players()
-server = Server(MY_SERVER_HOST, MY_SERVER_PORT)
+if DVA_IGRACA:
+    me, enemy = define_players()
+    server = Server(MY_SERVER_HOST, MY_SERVER_PORT)
