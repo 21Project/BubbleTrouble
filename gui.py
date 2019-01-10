@@ -7,7 +7,7 @@ pygame.init()
 screen = pygame.display.set_mode((SIRINA, VISINA))
 font = pygame.font.SysFont("monospace", 30)
 clock = pygame.time.Clock()
-igra = Igra()
+igra = None
 
 njegova_adresa = ''
 njegov_port = 0
@@ -18,6 +18,7 @@ me = None
 enemy = None
 server = None
 
+
 def start_nivo(nivo):
     igra.ucitaj_nivo(nivo)
     glavni_meni.aktivan = False
@@ -26,9 +27,19 @@ def start_nivo(nivo):
         igra.azuriraj()
         iscrtaj_nivo()
         handle_game_event()
-        data_transfer(me, enemy,server)
+        if igra.online:
+            data_transfer(me, enemy, server)
         pygame.display.update()
         if igra.predjen_nivo or igra.restartuj_nivo:
+            if igra.online:
+                if me.ziv:
+                    me.levo = False
+                    me.desno = False
+                    me.oruzje.ziv = False
+                if enemy.ziv:
+                    enemy.levo = False
+                    enemy.desno = False
+                    enemy.oruzje.ziv = False
             pygame.time.delay(2000)
         if igra.izgubljeni_zivoti:
             pygame.time.delay(1000)
@@ -65,6 +76,9 @@ def napusti_igru():
 
 
 def dva_igraca():
+    global igra
+    igra = Igra()
+    igra.online = True
     print("dva_igraca")
     global njegova_adresa
     global njegov_port
@@ -72,6 +86,15 @@ def dva_igraca():
     global moj_port
     njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("dva_igraca")
     pokreni_igru()
+
+
+def offline_dva_igraca():
+    global  igra
+    igra = Igra()
+    igra.online = False
+    igra.igraci = [Igrac_1()]
+    igra.igraci.append(Igrac_2())
+    zapocni_igru_sa_dva_igraca()
 
 
 def prikazi_kontrole():
@@ -87,6 +110,7 @@ def prikazi_kontrole():
 def pokreni_turnir():
     print("pokreni_turnir")
 
+
 def data_transfer(me, enemy, server):
     me_data = me.make_data_package()
     send(me_data, njegova_adresa, njegov_port)  # the send code
@@ -100,20 +124,26 @@ def data_transfer(me, enemy, server):
         enemy.oruzje.rect.centerx = int(enemy_data[8:12])
         enemy.oruzje.rect.centery = int(enemy_data[12:16])
 
+
 def pokreni_igru():
     global me
     global enemy
-    me, enemy = define_players(moja_adresa, njegova_adresa)
+    me, enemy, me_igrac1 = define_players(moja_adresa, njegova_adresa)
     global server
     server = Server_igra(moja_adresa, moj_port)
-    igra.igraci = [me]
-    igra.igraci.append(enemy)
+    if me_igrac1:
+        igra.igraci = [me]
+        igra.igraci.append(enemy)
+    else:
+        igra.igraci = [enemy]
+        igra.igraci.append(me)
     zapocni_igru_sa_dva_igraca()
 
 
 glavni_meni = Meni(
     screen, OrderedDict(
-        [('2 igraca', dva_igraca),
+        [('Offline protivnik', offline_dva_igraca),
+         ('Online protivnik', dva_igraca),
          ('Kontorle', prikazi_kontrole),
          ('Izadji', napusti_igru),
          ("Igraj turnir", pokreni_turnir)]
@@ -218,52 +248,89 @@ def iscrtaj_nivo():
 def handle_game_event():
     for event in pygame.event.get():
         if event.type == KEYDOWN:
-            if igra.prvi_igrac:
-                if event.key == K_LEFT:
-                    igra.igraci[0].levo = True
-                elif event.key == K_RIGHT:
-                    igra.igraci[0].desno = True
-                elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
-                    igra.igraci[0].pucaj()
-                    # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
-                elif event.key == K_ESCAPE:
-                    napusti_igru()
-            if igra.drugi_igrac:
-                if igra.prvi_igrac == False:
-                    if event.key == K_a:
+            if not igra.online:
+                if igra.prvi_igrac:
+                    if event.key == K_LEFT:
                         igra.igraci[0].levo = True
-                    elif event.key == K_d:
+                    elif event.key == K_RIGHT:
                         igra.igraci[0].desno = True
-                    elif event.key == K_w and \
-                            not igra.igraci[0].oruzje.ziv:
+                    elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
                         igra.igraci[0].pucaj()
-                        # screen.blit(igra.igraci[0].oruzje.slika,igra.igraci[0].oruzje.rect)
-                else:
-                    if event.key == K_a:
-                        igra.igraci[1].levo = True
-                    elif event.key == K_d:
-                        igra.igraci[1].desno = True
-                    elif event.key == K_w and \
-                            not igra.igraci[1].oruzje.ziv:
-                        igra.igraci[1].pucaj()
-                        # screen.blit(igra.igraci[1].oruzje.slika, igra.igraci[1].oruzje.rect)
+                        # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
+                    elif event.key == K_ESCAPE:
+                        napusti_igru()
+                if igra.drugi_igrac:
+                    if igra.prvi_igrac == False:
+                        if event.key == K_a:
+                            igra.igraci[0].levo = True
+                        elif event.key == K_d:
+                            igra.igraci[0].desno = True
+                        elif event.key == K_w and \
+                                not igra.igraci[0].oruzje.ziv:
+                            igra.igraci[0].pucaj()
+                            # screen.blit(igra.igraci[0].oruzje.slika,igra.igraci[0].oruzje.rect)
+                    else:
+                        if event.key == K_a:
+                            igra.igraci[1].levo = True
+                        elif event.key == K_d:
+                            igra.igraci[1].desno = True
+                        elif event.key == K_w and \
+                                not igra.igraci[1].oruzje.ziv:
+                            igra.igraci[1].pucaj()
+                            # screen.blit(igra.igraci[1].oruzje.slika, igra.igraci[1].oruzje.rect)
+            else:
+                if me.ziv:
+                    if igra.igraci[0] == me:
+                        if event.key == K_LEFT:
+                            igra.igraci[0].levo = True
+                        elif event.key == K_RIGHT:
+                            igra.igraci[0].desno = True
+                        elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
+                            igra.igraci[0].pucaj()
+                            # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
+                        elif event.key == K_ESCAPE:
+                            napusti_igru()
+                    elif igra.igraci[1] == me:
+                        if event.key == K_LEFT:
+                            igra.igraci[1].levo = True
+                        elif event.key == K_RIGHT:
+                            igra.igraci[1].desno = True
+                        elif event.key == K_SPACE and not igra.igraci[1].oruzje.ziv:
+                            igra.igraci[1].pucaj()
+                            # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
+                        elif event.key == K_ESCAPE:
+                            napusti_igru()
+
         if event.type == KEYUP:
-            if igra.prvi_igrac:
-                if event.key == K_LEFT:
-                    igra.igraci[0].levo = False
-                elif event.key == K_RIGHT:
-                    igra.igraci[0].desno = False
-            if igra.drugi_igrac:
-                if igra.prvi_igrac == False:
-                    if event.key == K_a:
+            if not igra.online:
+                if igra.prvi_igrac:
+                    if event.key == K_LEFT:
                         igra.igraci[0].levo = False
-                    elif event.key == K_d:
+                    elif event.key == K_RIGHT:
                         igra.igraci[0].desno = False
-                else:
-                    if event.key == K_a:
-                        igra.igraci[1].levo = False
-                    elif event.key == K_d:
-                        igra.igraci[1].desno = False
+                if igra.drugi_igrac:
+                    if igra.prvi_igrac == False:
+                        if event.key == K_a:
+                            igra.igraci[0].levo = False
+                        elif event.key == K_d:
+                            igra.igraci[0].desno = False
+                    else:
+                        if event.key == K_a:
+                            igra.igraci[1].levo = False
+                        elif event.key == K_d:
+                            igra.igraci[1].desno = False
+            else:
+                if me.ziv:
+                    if igra.igraci[0] == me:
+                        if event.key == K_LEFT:
+                            igra.igraci[0].levo = False
+                        elif event.key == K_RIGHT:
+                            igra.igraci[0].desno = False
+                    elif igra.igraci[1] == me:
+                        if event.key == K_LEFT:
+                            igra.igraci[1].levo = False
+                        elif event.key == K_RIGHT:
+                            igra.igraci[1].desno = False
         if event.type == QUIT:
             napusti_igru()
 

@@ -5,12 +5,14 @@ from igrac import *
 from threading import Timer
 from bonusi import *
 
+#brojac_kolizija = 0
 class Igra:
     def __init__(self, nivo = 1):
         self.nivo = nivo
         self.prvi_igrac = True
         self.drugi_igrac = True
         self.dva_igraca = True
+        self.online = False
         self.lopte = []
         self.bonusi = []
         self.igraci = []
@@ -21,6 +23,7 @@ class Igra:
         self.pokrenuto = True
         self.preostalo_vreme = 0
         self.pobednik = 0
+        self.brojac_kolizija = 0
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
@@ -53,10 +56,12 @@ class Igra:
 
 
     def _check_for_bubble_collision(self, loptice, igrac):
+        #global brojac_kolizija
         for index, loptica in enumerate(loptice):
             if pygame.sprite.collide_rect(loptica, igrac.oruzje) \
                     and igrac.oruzje.ziv:
                 igrac.oruzje.ziv = False
+                self.brojac_kolizija += 1
                 self._split_ball(index)
                 return True
             if pygame.sprite.collide_rect(loptica, igrac):  #collide_mask
@@ -108,11 +113,15 @@ class Igra:
     def restart(self):
         self.ucitaj_nivo(self.nivo)
 
-    @staticmethod
-    def _drop_bonus():
-        if random.randrange(BONUS_DROP_RATE) == 0:
-            bonus_tip = random.choice(bonus_tipovi)
-            return bonus_tip
+    #@staticmethod
+    def _drop_bonus(self):
+        if self.brojac_kolizija % 5 == 0: # random.randrange(BONUS_DROP_RATE) == 0:
+            bonus_tip = BONUS_VREME # random.choice(bonus_tipovi)
+        elif self.brojac_kolizija % 11 == 0:
+            bonus_tip = BONUS_ZIVOT
+        else:
+            bonus_tip = None
+        return bonus_tip
 
     def _activate_bonus(self, bonus, igrac):
         if bonus == BONUS_ZIVOT:

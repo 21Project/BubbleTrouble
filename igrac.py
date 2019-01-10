@@ -61,18 +61,22 @@ def define_players(MY_SERVER_HOST, OTHER_HOST):
     if ip_value(MY_SERVER_HOST) > ip_value(OTHER_HOST):
         me = Igrac_1()
         enemy = Igrac_2()
+        me_igrac1 = True
     else:
         me = Igrac_2()
         enemy = Igrac_1()
-    return me, enemy
+        me_igrac1 = False
+    return me, enemy, me_igrac1
 
 class Igrac_1(Igrac):
     def __init__(self, slika = "igrac1.png"):
         super().__init__(slika)
+        self.prvi_igrac = True
 
 class Igrac_2(Igrac):
     def __init__(self, slika = "igrac2.png"):
         super().__init__(slika)
+        self.prvi_igrac = False
 
 
 
