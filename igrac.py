@@ -1,6 +1,7 @@
 from oruzje import *
-from server import *
-import konekcija
+from konekcija_za_igru import *
+from client import *
+
 
 class Igrac(pygame.sprite.Sprite):
     def __init__(self, slika):
@@ -16,8 +17,6 @@ class Igrac(pygame.sprite.Sprite):
 
     def pucaj(self):
         self.oruzje = Oruzje(self.rect.centerx, self.rect.top)
-        #print(self.rect.centerx)
-        #print(self.rect.top)
         self.oruzje.ziv = True
     def azuriraj(self):
         if self.prvi_igrac:
@@ -58,7 +57,7 @@ def ip_value(ip):
     """ ip_value returns ip-string as integer """
     return int(''.join([x.rjust(3, '0') for x in ip.split('.')]))
 
-def define_players():
+def define_players(MY_SERVER_HOST, OTHER_HOST):
     if ip_value(MY_SERVER_HOST) > ip_value(OTHER_HOST):
         me = Igrac_1()
         enemy = Igrac_2()
@@ -77,19 +76,9 @@ class Igrac_2(Igrac):
 
 
 
-def data_transfer():
-    me_data = me.make_data_package()
-    konekcija.send(me_data, OTHER_HOST, OTHER_PORT)  # the send code
 
-    enemy_data = server.receive()  # the receive code
 
-    enemy.rect.centerx = int(enemy_data[:4])
-    enemy.rect.centery = int(enemy_data[4:8])
-    if len(enemy_data) > 8:
-        enemy.oruzje.ziv = True
-        enemy.oruzje.rect.centerx = int(enemy_data[8:12])
-        enemy.oruzje.rect.centery = int(enemy_data[12:16])
 
-if DVA_IGRACA:
-    me, enemy = define_players()
-    server = Server(MY_SERVER_HOST, MY_SERVER_PORT)
+
+#me, enemy = define_players()
+#server = Server_igra(MY_SERVER_HOST, MY_SERVER_PORT)

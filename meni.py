@@ -1,4 +1,3 @@
-import pygame
 from konfiguracija import *
 
 class MeniOpcija (pygame.font.Font):
@@ -28,29 +27,11 @@ class MeniOpcija (pygame.font.Font):
         self.label = self.render(self.text, 1, self.font_color)
         self.is_selected = False
 
-    #def promeni_sliku(self, naziv_pozadine,screen,option):
-        #pozadina = pygame.image.load(PUTANJA_SLIKE + naziv_pozadine)
-        #slicica1 = pygame.transform.scale(pozadina, (SIRINA, VISINA))
-        #screen.blit(slicica1, (0, 0))
-        #screen.blit(option.label, option.position)
-        #self.is_selected = True
-
-    #def vrati_sliku(self,screen,option):
-        #pozadina = pygame.image.load(PUTANJA_SLIKE + "Meni.png")
-        #slicica1 = pygame.transform.scale(pozadina, (SIRINA, VISINA))
-        #screen.blit(slicica1, (0, 0))
-        #screen.blit(option.label, option.position)
-        #self.is_selected = False
-
-    def check_for_mouse_selection(self, mouse_pos): #,screen,option
+    def check_for_mouse_selection(self, mouse_pos):
         if self.rect.collidepoint(mouse_pos):
-            #self.promeni_sliku("Meni1Igrac.png", screen,option)
             self.highlight()
-            #self.promeni_sliku("Meni1Igrac.png", screen)
         else:
-            #self.vrati_sliku(screen,option)
             self.unhighlight()
-            #self.vrati_sliku(screen)
 
 
 class Meni():
@@ -71,10 +52,7 @@ class Meni():
             maksimalna_visina = len(funkcije) * visina
             pos_x = self.sirina_prozora - 680
             pos_y = self.visina_prozora - 420 + index * visina* 2.2
-            if meni_opcija.text == 'Igraj turnir':
-                meni_opcija.set_position(70, self.visina_prozora - 70)
-            else:
-                meni_opcija.set_position(pos_x, pos_y)
+            meni_opcija.set_position(pos_x, pos_y)
             self.opcije.append(meni_opcija)
 
     def draw(self):
@@ -82,10 +60,7 @@ class Meni():
         self.screen.fill(self.bg_color)
         self.screen.blit(slicica,(0,0))
         for option in self.opcije:
-            option.check_for_mouse_selection(pygame.mouse.get_pos()) #, self.screen, option
+            option.check_for_mouse_selection(pygame.mouse.get_pos())
             if self.trenutna_opcija is not None:
                 self.opcije[self.trenutna_opcija].highlight()
-                #self.opcije[self.trenutna_opcija].promeni_sliku("Meni1Igrac.png", self.screen, option)
             self.screen.blit(option.label, option.position)
-
-

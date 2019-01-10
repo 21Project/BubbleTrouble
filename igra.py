@@ -9,14 +9,11 @@ class Igra:
     def __init__(self, nivo = 1):
         self.nivo = nivo
         self.prvi_igrac = True
-        self.drugi_igrac = False
-        self.dva_igraca = False
+        self.drugi_igrac = True
+        self.dva_igraca = True
         self.lopte = []
         self.bonusi = []
-        if DVA_IGRACA:
-            self.igraci = [me]
-        else:
-            self.igraci = [Igrac_1()]
+        self.igraci = []
         self.zavrsena_igra = False
         self.predjen_nivo = False
         self.restartuj_nivo = False
@@ -27,10 +24,10 @@ class Igra:
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
-        if self.dva_igraca and len(self.igraci) == 1:
-            self.igraci.append(enemy)
-            self.igraci[1].prvi_igrac = False
-            self.drugi_igrac = True
+        # if self.dva_igraca and len(self.igraci) == 1:
+        #     self.igraci.append(enemy)
+        #     self.igraci[1].prvi_igrac = False
+        #     self.drugi_igrac = True
         self.lopte = []
         self.bonusi = []
         self.izgubljeni_zivoti = False  #dead_player
@@ -127,31 +124,8 @@ class Igra:
     def _split_ball(self, index_loptice):
         lopta = self.lopte[index_loptice]
         if lopta.velicina > 1:
-            # print("bottom1 " + str(self.lopte[index_loptice].rect.bottom))
-            # print("top1 " + str(self.lopte[index_loptice].rect.top))
-            #print("igrac top" + str(self.igraci[0].rect.top))
-            #print("igrac bottom" + str(self.igraci[0].rect.bottom))
-
-            # if lopta.rect.bottom < 440:
-            #     print("udji u if")
-            #     self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top - 60, lopta.velicina - 1,
-            #                             [-3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
-            #     self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top - 60, lopta.velicina - 1,
-            #                             [3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
-            # else:
-            #print("udji u else")
-
-
             self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[-3, 1]))
             self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[3, (lopta.velicina - 1) * math.fabs(math.sin(3))]))
-
-            # ovo valja self.lopte.append(Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 10, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
-            #self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top - 10, lopta.velicina - 1,[-3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
-            # ovo valja self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top - 10, lopta.velicina - 1,[3, -(lopta.velicina - 1) * math.fabs(math.sin(3))]))
-            # self.lopte.insert(len(self.lopte),Lopta(lopta.rect.left - lopta.velicina**2,lopta.rect.top - 100, lopta.velicina - 1, [-3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
-            # self.lopte.insert(len(self.lopte),Lopta(lopta.rect.left + lopta.velicina**2,lopta.rect.top - 100, lopta.velicina - 1, [3, -(lopta.velicina-1) * math.fabs(math.sin(3))]))
-            # print("bottom " + str(self.lopte[len(self.lopte)-1].rect.bottom))
-            # print("top " + str(self.lopte[len(self.lopte)-1].rect.top))
         del self.lopte[index_loptice]
         bonus_tip = self._drop_bonus()
         if bonus_tip:
@@ -165,8 +139,6 @@ class Igra:
             self.ucitaj_nivo(self.nivo + 1)
         if self.zavrsena_igra:
             self.pokrenuto = False
-            #pygame.quit()
-            #sys.exit()
         if self.izgubljeni_zivoti:
             self.restart()
         self._check_for_collisions()
