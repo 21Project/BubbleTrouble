@@ -250,8 +250,12 @@ def iscrtaj_nivo():
         if igra.pobednik == 1:
             if igra.zavrsen_turnir:
                 ispisi_poruku('Pobednik turnira je prvi igrac!', (0, 0, 255), 25)
+                pygame.display.update()
+                pygame.time.delay(1000)
             else:
                 ispisi_poruku('Pobednik je prvi igrac!', (0, 0, 255), 25)
+                pygame.display.update()
+                pygame.time.delay(1000)
                 if igra.turnir:
                     if me_igrac1:
                         njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("pobednik_partije")
@@ -262,8 +266,12 @@ def iscrtaj_nivo():
         elif igra.pobednik == 2:
             if  igra.zavrsen_turnir:
                 ispisi_poruku('Pobednik turnira je drugi igrac!', (0, 0, 255), 25)
+                pygame.display.update()
+                pygame.time.delay(1000)
             else:
                 ispisi_poruku('Pobednik je drugi igrac!', (0, 0, 255), 25)
+                pygame.display.update()
+                pygame.time.delay(1000)
                 if igra.turnir:
                     if not me_igrac1:
                         njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("pobednik_partije")
@@ -272,7 +280,7 @@ def iscrtaj_nivo():
                         igra.zavrsen_turnir = True
                         pokreni_igru()
         pygame.display.update()
-        pygame.time.delay(3000)
+        pygame.time.delay(2000)
         pygame.mouse.set_visible(True)
         pokreni_meni()
     if igra.predjen_nivo:

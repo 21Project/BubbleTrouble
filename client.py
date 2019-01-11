@@ -18,17 +18,22 @@ def client_connect_function(text):
         s.sendall(text.encode('utf8'))
         text1 = ''
 
-        bin = s.recv(1024)
-        text1 += str(bin, 'utf-8')
+        #bin = s.recv(1024)
+        #text1 += str(bin, 'utf-8')
             # if not bin or len(bin) < 1024:
             #     break
+        while text1 == '':
+            text1 = receive_client(s)
+
         poruka_za_konekciju = text1
+        print(poruka_za_konekciju)
         OTHER_HOST, OTHER_PORT, MY_SERVER_HOST, MY_SERVER_PORT = razdvoj(poruka_za_konekciju)
         print('Received {0}' .format(text1))
         return  OTHER_HOST, OTHER_PORT, MY_SERVER_HOST, MY_SERVER_PORT
 
 def razdvoj(text):
     pomocna1 = text
+
     pomocna = pomocna1.split('|')
     pomocna[0] = pomocna[0].strip('(')
     pomocna[0] = pomocna[0].strip(')')
@@ -49,6 +54,13 @@ def razdvoj(text):
     return OTHER_HOST, OTHER_PORT, MY_SERVER_HOST, MY_SERVER_PORT
 
 
-
+def receive_client(s):
+    data = ''
+    while True:
+        bin = s.recv(1024)
+        data += str(bin, 'utf8')
+        if not bin or len(bin) < 1024:
+            break
+    return data
 
 
