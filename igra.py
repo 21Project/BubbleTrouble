@@ -16,6 +16,8 @@ class Igra:
         self.lopte = []
         self.bonusi = []
         self.igraci = []
+        self.turnir = False
+        self.zavrsen_turnir = False
         self.zavrsena_igra = False
         self.predjen_nivo = False
         self.restartuj_nivo = False
