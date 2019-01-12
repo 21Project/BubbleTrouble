@@ -59,7 +59,7 @@ def pokreni_meni():
         clock.tick(30)
 
 
-def zapocni_igru_sa_dva_igraca():
+def zapocni_igru():
     brojac = 1
     while True:
         if not igra.zavrsena_igra:
@@ -94,8 +94,16 @@ def offline_dva_igraca():
     igra.online = False
     igra.igraci = [Igrac_1()]
     igra.igraci.append(Igrac_2())
-    zapocni_igru_sa_dva_igraca()
+    zapocni_igru()
 
+def jedan_igrac():
+    global igra
+    igra = Igra()
+    igra.online = False
+    igra.dva_igraca = False
+    igra.drugi_igrac = False
+    igra.igraci = [Igrac_1()]
+    zapocni_igru()
 
 def prikazi_kontrole():
     print("prikazi_kontrole")
@@ -147,16 +155,17 @@ def pokreni_igru():
     else:
         igra.igraci = [enemy]
         igra.igraci.append(me)
-    zapocni_igru_sa_dva_igraca()
+    zapocni_igru()
 
 
 glavni_meni = Meni(
     screen, OrderedDict(
-        [('Offline protivnik', offline_dva_igraca),
-         ('Online protivnik', dva_igraca),
-         ('Kontorle', prikazi_kontrole),
+        [('1 igrac', jedan_igrac),
+         ('2 igraca-Offline', offline_dva_igraca),
+         ('2 igraca-Online', dva_igraca),
+         ("Igraj turnir", pokreni_turnir),
          ('Izadji', napusti_igru),
-         ("Igraj turnir", pokreni_turnir)]
+         ('Kontrole', prikazi_kontrole)]
 
     )
 )
@@ -245,6 +254,8 @@ def iscrtaj_nivo():
     iscrtaj_nivoe()
     if igra.zavrsena_igra:
         ispisi_poruku('Game over!', (0, 0, 255), 0)
+        if igra.nema_pobednika:
+            ispisi_poruku('Nema pobednika!', (0, 0, 255), 25)
         pygame.display.update()
         # pygame.time.delay(3000)
         if igra.pobednik == 1:

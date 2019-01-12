@@ -14,6 +14,7 @@ class Lopta(pygame.sprite.Sprite):
 
 
 
+
     def azuriraj(self):
         self.brzina[1] += 1  # gravity
         self.rect = self.rect.move(self.brzina)
@@ -21,10 +22,13 @@ class Lopta(pygame.sprite.Sprite):
             self.brzina[0] = -self.brzina[0]
         if self.rect.top < 95 or self.rect.bottom > VISINA:
             self.brzina[1] = -self.brzina[1]
+
         self.rect.left = self._clip(self.rect.left, 0, SIRINA)
         self.rect.right = self._clip(self.rect.right, 0, SIRINA)
         self.rect.top = self._clip(self.rect.top, 95, VISINA)
         self.rect.bottom = self._clip(self.rect.bottom, 0, VISINA)
+
+
 
     @staticmethod
     def _clip(val, min_value, max_value):

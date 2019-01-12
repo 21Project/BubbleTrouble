@@ -26,6 +26,7 @@ class Igra:
         self.preostalo_vreme = 0
         self.pobednik = 0
         self.brojac_kolizija = 0
+        self.nema_pobednika = False
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
@@ -82,26 +83,31 @@ class Igra:
         return False
 
     def _decrease_lives(self, igrac):
-        igrac.zivoti -= 1
-        if igrac.zivoti:
-            self.izgubljeni_zivoti = True
-            igrac.ziv = False
+        if self.nema_pobednika:
+            self.pobednik = 0
+            self.igraci = []
+            self.zavrsena_igra = True
         else:
-            if igrac.prvi_igrac == True:
-                self.prvi_igrac = False
-                if self.dva_igraca:
-                    self.pobednik = 2
+            igrac.zivoti -= 1
+            if igrac.zivoti:
+                self.izgubljeni_zivoti = True
+                igrac.ziv = False
             else:
-                self.drugi_igrac = False
-                if self.dva_igraca:
-                    self.pobednik = 1
-            self.igraci.remove(igrac)
-            self.dva_igraca = False
-            if self.igraci:
-                self.restartuj_nivo = True
-                self.restart()
-            else:
-                self.zavrsena_igra = True
+                if igrac.prvi_igrac == True:
+                    self.prvi_igrac = False
+                    if self.dva_igraca:
+                        self.pobednik = 2
+                else:
+                    self.drugi_igrac = False
+                    if self.dva_igraca:
+                        self.pobednik = 1
+                self.igraci.remove(igrac)
+                self.dva_igraca = False
+                if self.igraci:
+                    self.restartuj_nivo = True
+                    self.restart()
+                else:
+                    self.zavrsena_igra = True
 
     def _proveri_zivote(self):
         provera = False
@@ -135,8 +141,8 @@ class Igra:
     def _split_ball(self, index_loptice):
         lopta = self.lopte[index_loptice]
         if lopta.velicina > 1:
-            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[-3, 1]))
-            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[3, (lopta.velicina - 1) * math.fabs(math.sin(3))]))
+            self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[-3, -math.fabs(math.sin((lopta.velicina-1)*3))]))
+            self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[3, -math.fabs(math.sin((lopta.velicina-1)*3))]))
         del self.lopte[index_loptice]
         bonus_tip = self._drop_bonus()
         if bonus_tip:
@@ -177,8 +183,15 @@ class Igra:
     def _tick_second(self):
         self.preostalo_vreme -= 1
         if self.preostalo_vreme == 0:
-            for igrac in self.igraci:
-                self._decrease_lives(igrac)
+            if self.igraci[0].zivoti == 1 and self.igraci[1].zivoti > 1:
+                self._decrease_lives(self.igraci[1])
+                self._decrease_lives(self.igraci[0])
+            elif self.igraci[0].zivoti == 1 and self.igraci[1].zivoti == 1:
+                self.nema_pobednika = True
+                self._decrease_lives(self.igraci[0])
+            else:
+                for igrac in self.igraci:
+                    self._decrease_lives(igrac)
 
     def _set_nivo(self, nivo):
         velicina = nivo % 4
@@ -189,7 +202,7 @@ class Igra:
             br_lopti += 1
         vreme = nivo + 19
         x = 200
-        y = 250
+        y = 200
         self.preostalo_vreme = vreme
         #x = 100
         for i in range(1, br_lopti+1):

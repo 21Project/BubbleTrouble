@@ -2,7 +2,7 @@ from konfiguracija import *
 
 class MeniOpcija (pygame.font.Font):
     def __init__(self, text, function,
-                 position=(0, 0), font=None, font_size=50, font_color=(255,255,255)):
+                 position=(0, 0), font=None, font_size=50, font_color=(238,208,17)):
         pygame.font.Font.__init__(self, font, font_size)
         self.text = text
         self.function = function
@@ -23,7 +23,7 @@ class MeniOpcija (pygame.font.Font):
         self.is_selected = True
 
     def unhighlight(self):
-        self.font_color = (255,255,255)
+        self.font_color = (238,208,17)
         self.label = self.render(self.text, 1, self.font_color)
         self.is_selected = False
 
@@ -50,9 +50,14 @@ class Meni():
             sirina = meni_opcija.rect.width
             visina = meni_opcija.rect.height
             maksimalna_visina = len(funkcije) * visina
-            pos_x = self.sirina_prozora - 680
+            pos_x = self.sirina_prozora - 735
             pos_y = self.visina_prozora - 420 + index * visina* 2.2
-            meni_opcija.set_position(pos_x, pos_y)
+            if meni_opcija.text == "Izadji":
+                meni_opcija.set_position(25, VISINA-75)
+            elif meni_opcija.text == "Kontrole":
+                meni_opcija.set_position(200, VISINA-75)
+            else:
+                meni_opcija.set_position(pos_x, pos_y)
             self.opcije.append(meni_opcija)
 
     def draw(self):
