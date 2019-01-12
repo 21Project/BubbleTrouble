@@ -39,12 +39,12 @@ def razdvoj(text):
     pomocna[0] = pomocna[0].strip(')')
     pom_niz = pomocna[0].split(',')
     OTHER_HOST = str(pom_niz[0].strip("'"))
-    OTHER_PORT = int(pom_niz[1].strip()) + 1
+    OTHER_PORT = int(pom_niz[1].strip())
     pomocna[1] = pomocna[1].strip('(')
     pomocna[1] = pomocna[1].strip(')')
     pom_niz1 = pomocna[1].split(',')
     MY_SERVER_HOST = str(pom_niz1[0].strip("'"))
-    MY_SERVER_PORT = int(pom_niz1[1].strip()) + 1
+    MY_SERVER_PORT = int(pom_niz1[1].strip())
 
     print(OTHER_HOST)
     print(OTHER_PORT)

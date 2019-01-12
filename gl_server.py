@@ -4,6 +4,7 @@ import sys
 from pygame.locals import *
 from collections import OrderedDict
 import threading
+import  multiprocessing
 
 data_payload = 2048
 
@@ -136,26 +137,34 @@ class Glavni_Server():
         self.klijenti_soketi_nova_partija[index_drugog].sendall(klijent1.encode('utf8'))
         self.klijenti_soketi_nova_partija[index_prvog].sendall(klijent2.encode('utf8'))
 
+
 adr = socket.gethostname()
 server = Glavni_Server('', 50005)
 
-while True:
 
-    try:
-        print("cekaju se klijenti")
-        server.client, address = server.sock.accept()
+def fj():
+    while True:
+        try:
+            print("cekaju se klijenti")
+            server.client, address = server.sock.accept()
 
-        server.klijenti.insert(len(server.klijenti),address)
-        server.klijenti_soketi.insert(len(server.klijenti_soketi),server.client)
+            server.klijenti.insert(len(server.klijenti),address)
+            server.klijenti_soketi.insert(len(server.klijenti_soketi),server.client)
 
-        server.klijenti_turnir.insert(len(server.klijenti_turnir),address)
-        server.klijenti_turnir_soketi.insert(len(server.klijenti_turnir_soketi),server.client)
+            server.klijenti_turnir.insert(len(server.klijenti_turnir),address)
+            server.klijenti_turnir_soketi.insert(len(server.klijenti_turnir_soketi),server.client)
 
-        server.klijenti_nova_partija.insert(len(server.klijenti_nova_partija), address)
-        server.klijenti_soketi_nova_partija.insert(len(server.klijenti_soketi_nova_partija), server.client)
+            server.klijenti_nova_partija.insert(len(server.klijenti_nova_partija), address)
+            server.klijenti_soketi_nova_partija.insert(len(server.klijenti_soketi_nova_partija), server.client)
 
-        listener = threading.Thread(target = server.obradi_poruku)
-        listener.start()
-        print("stoji i dalje")
-    except:
-        print("nema klijenata")
+            listener = threading.Thread(target=server.obradi_poruku)
+            listener.start()
+            print("stoji i dalje")
+        except:
+            print("nema klijenata")
+
+
+if __name__ == '__main__':
+    p = multiprocessing.Process(target=fj())
+    p.start()
+    p.join()

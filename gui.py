@@ -84,8 +84,11 @@ def dva_igraca():
     global njegov_port
     global moja_adresa
     global moj_port
+    moj_port = 0
+    njegov_port = 0
     njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("dva_igraca")
-    pokreni_igru()
+    if not moj_port == 0 and not njegov_port == 0:
+        pokreni_igru()
 
 
 def offline_dva_igraca():
@@ -125,8 +128,11 @@ def pokreni_turnir():
     global njegov_port
     global moja_adresa
     global moj_port
+    moj_port = 0
+    njegov_port = 0
     njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("igraj_turnir")
-    pokreni_igru()
+    if not moj_port == 0 and not njegov_port == 0:
+        pokreni_igru()
 
 def data_transfer(me, enemy, server):
     me_data = me.make_data_package()
@@ -254,8 +260,7 @@ def iscrtaj_nivo():
     iscrtaj_nivoe()
     if igra.zavrsena_igra:
         ispisi_poruku('Game over!', (0, 0, 255), 0)
-        if igra.nema_pobednika:
-            ispisi_poruku('Nema pobednika!', (0, 0, 255), 25)
+
         pygame.display.update()
         # pygame.time.delay(3000)
         if igra.pobednik == 1:
@@ -269,11 +274,14 @@ def iscrtaj_nivo():
                 pygame.time.delay(1000)
                 if igra.turnir:
                     if me_igrac1:
+                        moj_port = 0
+                        njegov_port = 0
                         njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("pobednik_partije")
                         igra = Igra()
                         igra.online = True
                         igra.zavrsen_turnir = True
-                        pokreni_igru()
+                        if not moj_port == 0 and not njegov_port ==0:
+                            pokreni_igru()
         elif igra.pobednik == 2:
             if  igra.zavrsen_turnir:
                 ispisi_poruku('Pobednik turnira je drugi igrac!', (0, 0, 255), 25)
@@ -285,11 +293,15 @@ def iscrtaj_nivo():
                 pygame.time.delay(1000)
                 if igra.turnir:
                     if not me_igrac1:
+                        moj_port = 0
+                        njegov_port =0
                         njegova_adresa, njegov_port, moja_adresa, moj_port = client_connect_function("pobednik_partije")
                         igra = Igra()
                         igra.online = True
                         igra.zavrsen_turnir = True
-                        pokreni_igru()
+                        if not moj_port == 0 and not njegov_port ==0:
+                            pokreni_igru()
+
         pygame.display.update()
         pygame.time.delay(2000)
         pygame.mouse.set_visible(True)
