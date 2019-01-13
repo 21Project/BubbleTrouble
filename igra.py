@@ -26,6 +26,7 @@ class Igra:
         self.preostalo_vreme = 0
         self.pobednik = 0
         self.brojac_kolizija = 0
+		self.broj_nivoa = 1
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
