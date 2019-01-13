@@ -51,6 +51,7 @@ class Igra:
     def _start_timer(self):
         self._timer(1, self._tick_second, self.preostalo_vreme)
 
+
     def _check_for_collisions(self):
         for igrac in self.igraci:
             self._check_for_bubble_collision(self.lopte, igrac)
@@ -164,12 +165,12 @@ class Igra:
 
 
     def _timer(self, interval, worker_func, iterations=0):
-        if iterations and not self.izgubljeni_zivoti and not \
+        if self.preostalo_vreme and not self.izgubljeni_zivoti and not \
                 self.predjen_nivo and not self.restartuj_nivo:
             Timer(
 
                 interval, self._timer,
-                [interval, worker_func, 0 if iterations ==
+                [interval, worker_func, 0 if self.preostalo_vreme ==
                     0 else iterations - 1]
             ).start()
             worker_func()
