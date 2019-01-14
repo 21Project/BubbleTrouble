@@ -13,6 +13,7 @@ class Bonus(pygame.sprite.Sprite):
         self.slika = pygame.image.load(PUTANJA_SLIKE + tip + '.png')
         self.rect = self.slika.get_rect(centerx=x, centery=y)
         self.tip = tip
+        self.preostalo_vreme = 15
 
     def azuriraj(self):
         if self.rect.bottom < VISINA:

@@ -2,7 +2,7 @@ from igra import *
 from meni import *
 from pygame.locals import *
 from collections import OrderedDict
-
+from igra import _drop_bonus, queueIgra, retQueueIgra
 from multiprocessing import Process, Queue
 
 #pygame.init()
@@ -26,8 +26,8 @@ class Gui():
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((SIRINA, VISINA))
         self.glavni_meni = self.dodeli_meni()
-        self.queue = Queue()
-        self.retQueue = Queue()
+        # self.queue = Queue()
+        # self.retQueue = Queue()
 
     def start_nivo(self,nivo):
         igra.ucitaj_nivo(nivo)
@@ -69,20 +69,23 @@ class Gui():
 
 
     def zapocni_igru(self):
-        global queue
-        global retQueue
+        # global queue
+        # global retQueue
 
         while True:
             if not igra.zavrsena_igra:
-                self.start_nivo(igra.broj_nivoa)
-                queue.put(True)
+                self.start_nivo(igra.nivo)
+                #self.queue.put(True)
                 self.clock.tick(30)
             else:
-                queue.put(False)
+                #self.queue.put(False)
                 break
 
 
     def napusti_igru(self):
+        global queueIgra
+        queueIgra.put("Izadji")
+        #self.queue.put(False)
         print("napusti_igru")
         pygame.quit()
         sys.exit()
@@ -270,7 +273,7 @@ class Gui():
         self.iscrtaj_vreme()
         self.iscrtaj_nivoe()
         if igra.zavrsena_igra:
-            self.queue.put(False)
+            #self.queue.put(False)
             self.ispisi_poruku('Game over!', (0, 0, 255), 0)
 
             pygame.display.update()
@@ -427,19 +430,27 @@ class Gui():
                             option.function[0](option.function[1])
 
     def run_game(self):
-        p1 = Process(target=broj_nivoe, args=[self.queue])
-        p1.start()
+        global retQueueIgra
+        # p1 = Process(target=broj_nivoe, args=[self.queue])
+        # p1.start()
+        p2 = Process(target=_drop_bonus, args=[queueIgra, retQueueIgra])
+        p2.start()
         self.pokreni_meni()
 
-def broj_nivoe(queue):
-    brojac = 0
-    while True:
-        message = queue.get()
-        if message:
-            brojac +=1
-            igra.broj_nivoa = brojac
-        else:
-            break
-            pygame.quit()
-            sys.exit()
+# def broj_nivoe(queue):
+#     brojac = 0
+#     print("napravljen barbin proces")
+#     while True:
+#         message = queue.get()
+#         print(message)
+#         if message:
+#             brojac +=1
+#             print("borjac:")
+#             print(brojac)
+#             igra.broj_nivoa = brojac
+#         else:
+#             print("gasi se barbin proces")
+#             pygame.quit()
+#             sys.exit()
+#             break
 

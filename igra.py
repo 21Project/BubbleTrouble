@@ -4,6 +4,10 @@ from lopta import *
 from igrac import *
 from threading import Timer
 from bonusi import *
+from multiprocessing import Queue
+
+queueIgra = Queue()
+retQueueIgra = Queue()
 
 #brojac_kolizija = 0
 class Igra:
@@ -26,7 +30,10 @@ class Igra:
         self.preostalo_vreme = 0
         self.pobednik = 0
         self.brojac_kolizija = 0
-		self.broj_nivoa = 1
+        self.broj_nivoa = 1
+        self.bonus_tip = "Nista"
+        # self.queue = Queue()
+        # self.retQueue = Queue()
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
@@ -60,12 +67,14 @@ class Igra:
 
 
     def _check_for_bubble_collision(self, loptice, igrac):
-        #global brojac_kolizija
+        global queueIgra
         for index, loptica in enumerate(loptice):
             if pygame.sprite.collide_rect(loptica, igrac.oruzje) \
                     and igrac.oruzje.ziv:
                 igrac.oruzje.ziv = False
                 self.brojac_kolizija += 1
+                print("doslo do ovde")
+                queueIgra.put(self.brojac_kolizija)
                 self._split_ball(index)
                 return True
             if pygame.sprite.collide_rect(loptica, igrac):  #collide_mask
@@ -117,15 +126,7 @@ class Igra:
     def restart(self):
         self.ucitaj_nivo(self.nivo)
 
-    #@staticmethod
-    def _drop_bonus(self):
-        if self.brojac_kolizija % 5 == 0: # random.randrange(BONUS_DROP_RATE) == 0:
-            bonus_tip = BONUS_VREME # random.choice(bonus_tipovi)
-        elif self.brojac_kolizija % 11 == 0:
-            bonus_tip = BONUS_ZIVOT
-        else:
-            bonus_tip = None
-        return bonus_tip
+
 
     def _activate_bonus(self, bonus, igrac):
         if bonus == BONUS_ZIVOT:
@@ -135,17 +136,19 @@ class Igra:
             self.preostalo_vreme += 10
 
     def _split_ball(self, index_loptice):
+        global retQueueIgra
         lopta = self.lopte[index_loptice]
         if lopta.velicina > 1:
             self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[-3, -math.fabs(math.sin((lopta.velicina-1)*3))]))
             self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[3, -math.fabs(math.sin((lopta.velicina-1)*3))]))
         del self.lopte[index_loptice]
-        bonus_tip = self._drop_bonus()
-        if bonus_tip:
-            bonus = Bonus(lopta.rect.centerx, lopta.rect.centery, bonus_tip)
+        print("doslo i do ovdee")
+        self.bonus_tip =retQueueIgra.get()
+        print(self.bonus_tip) #ovde staneee zakuca
+        if not self.bonus_tip == "Nista":
+            bonus = Bonus(lopta.rect.centerx, lopta.rect.centery, self.bonus_tip)
             self.bonusi.append(bonus)
-
-
+            self._timer(1, self._ukloni_bonus_ako_nije_uhvacen, bonus.preostalo_vreme)
 
     def azuriraj(self):
         if self.predjen_nivo:
@@ -182,6 +185,11 @@ class Igra:
             for igrac in self.igraci:
                 self._decrease_lives(igrac)
 
+    def _ukloni_bonus_ako_nije_uhvacen(self):
+        for bonus_index, bonus in enumerate(self.bonusi):
+            bonus.preostalo_vreme -= 1
+            if bonus.preostalo_vreme == 0:
+                del self.bonusi[bonus_index]
 
     def _set_nivo(self, nivo):
         velicina = nivo % 4
@@ -202,3 +210,23 @@ class Igra:
             self.lopte.append(Lopta(x, y, velicina, [3, 1])) #velicina * math.fabs(math.sin(3))
             x-=30
             y-=30
+
+def _drop_bonus(queueIgra, retQueueIgra):
+    #global retQueueIgra
+    bonus_tip = None
+    while True:
+        rr = queueIgra.get()
+        if not rr == "Izadji":
+            brojac_kol = rr
+            if brojac_kol % 5 == 0:
+                bonus_tip = BONUS_VREME
+            elif brojac_kol % 11 == 0:
+                bonus_tip = BONUS_ZIVOT
+            else:
+                bonus_tip = "Nista"
+            retQueueIgra.put(bonus_tip)
+        else:
+            print("izlazi iz treceg procesa")
+            pygame.quit()
+            sys.exit()
+            break
