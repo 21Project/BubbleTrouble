@@ -7,9 +7,6 @@ class Oruzje(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.slika = pygame.image.load(PUTANJA_SLIKE + "strelica.png")
         self.rect = self.slika.get_rect(centerx = x, top = y)
-        #self.rect.bottom = VISINA - 105
-        #self.rect = self.slika.get_rect()
-        #self.poc_pozicija(x,y)
 
     def azuriraj(self):
         if self.ziv:
@@ -17,8 +14,3 @@ class Oruzje(pygame.sprite.Sprite):
                 self.ziv = False
             else:
                 self.rect = self.rect.move(0, -15)
-
-    #def poc_pozicija(self, x , y ):
-        #self.rect.centerx = x
-        #self.rect.top = y
-        #self.rect.bottom = VISINA - 103

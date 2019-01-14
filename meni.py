@@ -2,7 +2,7 @@ from konfiguracija import *
 
 class MeniOpcija (pygame.font.Font):
     def __init__(self, text, function,
-                 position=(0, 0), font=None, font_size=50, font_color=(238,208,17)):
+                 position=(0, 0), font=None, font_size=50, font_color=(221,221,0)):
         pygame.font.Font.__init__(self, font, font_size)
         self.text = text
         self.function = function
@@ -23,7 +23,7 @@ class MeniOpcija (pygame.font.Font):
         self.is_selected = True
 
     def unhighlight(self):
-        self.font_color = (238,208,17)
+        self.font_color = (221,221,0)
         self.label = self.render(self.text, 1, self.font_color)
         self.is_selected = False
 

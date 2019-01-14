@@ -8,12 +8,6 @@ import  multiprocessing
 
 data_payload = 2048
 
-#pygame.init()
-#pygame.mouse.set_visible(True)
-
-#screen_server = pygame.display.set_mode((400, 400))
-#font_server = pygame.font.SysFont("monospace", 30)
-
 class Glavni_Server():
     def __init__(self, ip, port):
         self.klijenti = []
@@ -55,8 +49,6 @@ class Glavni_Server():
                     del self.klijenti[:]
                     del self.klijenti_soketi[:]
                     print("zavrsava tred_drugi")
-                    #self.client.close()
-                    #sys.exit()
             elif data == "igraj_turnir":
                 del self.klijenti[-1]
                 del self.klijenti_soketi[-1]
@@ -82,8 +74,6 @@ class Glavni_Server():
                     del self.klijenti_nova_partija[:]
                     del self.klijenti_soketi_nova_partija[:]
                     print("zavrsava tred_drugi")
-                    # self.client.close()
-                    # sys.exit()
         except:
             self.client.close()
             print("Connection closed")

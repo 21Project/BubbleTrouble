@@ -5,7 +5,6 @@ from collections import OrderedDict
 from igra import _drop_bonus, queueIgra, retQueueIgra
 from multiprocessing import Process, Queue
 
-#pygame.init()
 igra = None
 
 njegova_adresa = ''
@@ -26,8 +25,6 @@ class Gui():
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((SIRINA, VISINA))
         self.glavni_meni = self.dodeli_meni()
-        # self.queue = Queue()
-        # self.retQueue = Queue()
 
     def start_nivo(self,nivo):
         igra.ucitaj_nivo(nivo)
@@ -69,23 +66,17 @@ class Gui():
 
 
     def zapocni_igru(self):
-        # global queue
-        # global retQueue
-
         while True:
             if not igra.zavrsena_igra:
                 self.start_nivo(igra.nivo)
-                #self.queue.put(True)
                 self.clock.tick(30)
             else:
-                #self.queue.put(False)
                 break
 
 
     def napusti_igru(self):
         global queueIgra
         queueIgra.put("Izadji")
-        #self.queue.put(False)
         print("napusti_igru")
         pygame.quit()
         sys.exit()
@@ -149,18 +140,67 @@ class Gui():
         if not moj_port == 0 and not njegov_port == 0:
             self.pokreni_igru()
 
-    def data_transfer(self,me, enemy, server):
+    def data_transfer(self, me, enemy, server):
         me_data = me.make_data_package()
+        strr = ""
+        if me.levo == True and me.desno == False:
+            strr = "LTRUE"
+        elif me.desno == True and me.levo == False:
+            strr = "DTRUE"
+        elif me.desno == False and me.desno == False:
+            strr = "FALSE"
+
+        me_data += strr
         send(me_data, njegova_adresa, njegov_port)  # the send code
 
         enemy_data = server.receive()  # the receive code
 
         enemy.rect.centerx = int(enemy_data[:4])
         enemy.rect.centery = int(enemy_data[4:8])
-        if len(enemy_data) > 8:
+        if len(enemy_data) > 13:
             enemy.oruzje.ziv = True
             enemy.oruzje.rect.centerx = int(enemy_data[8:12])
             enemy.oruzje.rect.centery = int(enemy_data[12:16])
+        pom = "Nista"
+        if len(enemy_data) > 16:
+            pom = str(enemy_data[16:21])
+        elif (len(enemy_data) > 8 and len(enemy_data) < 14):
+            pom = str(enemy_data[8:14])
+        if len(igra.igraci) == 2:
+            if not pom == "Nista":
+                if pom == "LTRUE":
+                    if igra.igraci[0] == enemy:
+                        igra.igraci[0].desno = False
+                        igra.igraci[0].levo = True
+                    elif igra.igraci[1] == enemy:
+                        igra.igraci[1].desno = False
+                        igra.igraci[1].levo = True
+                elif pom == "DTRUE":
+                    if igra.igraci[0] == enemy:
+                        igra.igraci[0].levo = False
+                        igra.igraci[0].desno = True
+                    elif igra.igraci[1] == enemy:
+                        igra.igraci[1].levo = False
+                        igra.igraci[1].desno = True
+                else:
+                    if igra.igraci[0] == enemy:
+                        igra.igraci[0].levo = False
+                        igra.igraci[0].desno = False
+                    elif igra.igraci[1] == enemy:
+                        igra.igraci[1].levo = False
+                        igra.igraci[1].desno = False
+        elif len(igra.igraci) == 1:
+            if not pom == "Nista":
+                if igra.igraci[0] == enemy:
+                    if pom == "LTRUE":
+                        igra.igraci[0].desno = False
+                        igra.igraci[0].levo = True
+                    elif pom == "DTRUE":
+                        igra.igraci[0].levo = False
+                        igra.igraci[0].desno = True
+                    else:
+                        igra.igraci[0].levo = False
+                        igra.igraci[0].desno = False
 
 
     def pokreni_igru(self):
@@ -253,12 +293,11 @@ class Gui():
         global moj_port
         global igra
         global queue
-        br_slike = igra.nivo % 8
+        br_slike = igra.nivo % 9
         if br_slike == 0:
-            br_slike += 8
+            br_slike += 9
         slika_nivoa = pygame.transform.scale(pygame.image.load(PUTANJA_SLIKE + "level" + str(br_slike) + ".jpg"),
                                              (SIRINA, VISINA))
-        # slika_nivoa = pygame.transform.scale(pygame.image.load(PUTANJA_SLIKE + "level0.jpg"),(SIRINA, VISINA))
         self.screen.fill((255, 255, 255))
         self.screen.blit(slika_nivoa, (0, 0))
         for lopta in igra.lopte:
@@ -273,11 +312,8 @@ class Gui():
         self.iscrtaj_vreme()
         self.iscrtaj_nivoe()
         if igra.zavrsena_igra:
-            #self.queue.put(False)
-            self.ispisi_poruku('Game over!', (0, 0, 255), 0)
-
+            self.ispisi_poruku('Zavrsena igra!', (0, 0, 255), 0)
             pygame.display.update()
-            # pygame.time.delay(3000)
             if igra.pobednik == 1:
                 if igra.zavrsen_turnir:
                     self.ispisi_poruku('Pobednik turnira je prvi igrac!', (0, 0, 255), 25)
@@ -322,9 +358,9 @@ class Gui():
             pygame.mouse.set_visible(True)
             self.pokreni_meni()
         if igra.predjen_nivo:
-            self.ispisi_poruku('Well done! Level completed!', (0, 0, 255), 0)
+            self.ispisi_poruku('Predjen nivo', (0, 0, 255), 0)
         if igra.restartuj_nivo:
-            self.ispisi_poruku('Get ready!', (0, 0, 255), 0)
+            self.ispisi_poruku('Spremi se, pocinje nivo!', (0, 0, 255), 0)
 
 
     def handle_game_event(self):
@@ -338,7 +374,6 @@ class Gui():
                             igra.igraci[0].desno = True
                         elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
                             igra.igraci[0].pucaj()
-                            # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
                         elif event.key == K_ESCAPE:
                             self.napusti_igru()
                     if igra.drugi_igrac:
@@ -350,7 +385,6 @@ class Gui():
                             elif event.key == K_w and \
                                     not igra.igraci[0].oruzje.ziv:
                                 igra.igraci[0].pucaj()
-                                # screen.blit(igra.igraci[0].oruzje.slika,igra.igraci[0].oruzje.rect)
                         else:
                             if event.key == K_a:
                                 igra.igraci[1].levo = True
@@ -359,7 +393,6 @@ class Gui():
                             elif event.key == K_w and \
                                     not igra.igraci[1].oruzje.ziv:
                                 igra.igraci[1].pucaj()
-                                # screen.blit(igra.igraci[1].oruzje.slika, igra.igraci[1].oruzje.rect)
                 else:
                     if me.ziv:
                         if igra.igraci[0] == me:
@@ -369,7 +402,6 @@ class Gui():
                                 igra.igraci[0].desno = True
                             elif event.key == K_SPACE and not igra.igraci[0].oruzje.ziv:
                                 igra.igraci[0].pucaj()
-                                # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
                             elif event.key == K_ESCAPE:
                                 self.napusti_igru()
                         elif igra.igraci[1] == me:
@@ -379,7 +411,6 @@ class Gui():
                                 igra.igraci[1].desno = True
                             elif event.key == K_SPACE and not igra.igraci[1].oruzje.ziv:
                                 igra.igraci[1].pucaj()
-                                # screen.blit(igra.igraci[0].oruzje.slika, igra.igraci[0].oruzje.rect)
                             elif event.key == K_ESCAPE:
                                 self.napusti_igru()
 
@@ -431,26 +462,6 @@ class Gui():
 
     def run_game(self):
         global retQueueIgra
-        # p1 = Process(target=broj_nivoe, args=[self.queue])
-        # p1.start()
         p2 = Process(target=_drop_bonus, args=[queueIgra, retQueueIgra])
         p2.start()
         self.pokreni_meni()
-
-# def broj_nivoe(queue):
-#     brojac = 0
-#     print("napravljen barbin proces")
-#     while True:
-#         message = queue.get()
-#         print(message)
-#         if message:
-#             brojac +=1
-#             print("borjac:")
-#             print(brojac)
-#             igra.broj_nivoa = brojac
-#         else:
-#             print("gasi se barbin proces")
-#             pygame.quit()
-#             sys.exit()
-#             break
-

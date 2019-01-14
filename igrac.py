@@ -78,11 +78,3 @@ class Igrac_2(Igrac):
         super().__init__(slika)
         self.prvi_igrac = False
 
-
-
-
-
-
-
-#me, enemy = define_players()
-#server = Server_igra(MY_SERVER_HOST, MY_SERVER_PORT)

@@ -1,4 +1,3 @@
-# Echo client program
 import socket
 import konfiguracija
 
@@ -10,23 +9,17 @@ MY_SERVER_PORT = 0
 OTHER_HOST = ''
 
 def client_connect_function(text):
-    HOST = '192.168.100.218'  # The remote host
+    HOST = '192.168.100.219'  # The remote host
     PORT = 50005        # The same port as used by the server
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        #text2send = 'Hello world š đ č ć ž Здраво Свете'
         s.sendall(text.encode('utf8'))
         text1 = ''
 
-        #bin = s.recv(1024)
-        #text1 += str(bin, 'utf-8')
-            # if not bin or len(bin) < 1024:
-            #     break
         while text1 == '':
             text1 = receive_client(s)
 
         poruka_za_konekciju = text1
-        print(poruka_za_konekciju)
         OTHER_HOST, OTHER_PORT, MY_SERVER_HOST, MY_SERVER_PORT = razdvoj(poruka_za_konekciju)
         print('Received {0}' .format(text1))
         return  OTHER_HOST, OTHER_PORT, MY_SERVER_HOST, MY_SERVER_PORT
@@ -46,10 +39,6 @@ def razdvoj(text):
     MY_SERVER_HOST = str(pom_niz1[0].strip("'"))
     MY_SERVER_PORT = int(pom_niz1[1].strip())
 
-    print(OTHER_HOST)
-    print(OTHER_PORT)
-    print(MY_SERVER_HOST)
-    print(MY_SERVER_PORT)
 
     return OTHER_HOST, OTHER_PORT, MY_SERVER_HOST, MY_SERVER_PORT
 

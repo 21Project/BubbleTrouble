@@ -9,7 +9,6 @@ from multiprocessing import Queue
 queueIgra = Queue()
 retQueueIgra = Queue()
 
-#brojac_kolizija = 0
 class Igra:
     def __init__(self, nivo = 1):
         self.nivo = nivo
@@ -32,18 +31,12 @@ class Igra:
         self.brojac_kolizija = 0
         self.broj_nivoa = 1
         self.bonus_tip = "Nista"
-        # self.queue = Queue()
-        # self.retQueue = Queue()
 
     def ucitaj_nivo(self, nivo):
         self.restartuj_nivo = True
-        # if self.dva_igraca and len(self.igraci) == 1:
-        #     self.igraci.append(enemy)
-        #     self.igraci[1].prvi_igrac = False
-        #     self.drugi_igrac = True
         self.lopte = []
         self.bonusi = []
-        self.izgubljeni_zivoti = False  #dead_player
+        self.izgubljeni_zivoti = False
         for index, igrac in enumerate(self.igraci):
             index_igraca = index + 1
             broj_igraca = len(self.igraci)
@@ -73,11 +66,10 @@ class Igra:
                     and igrac.oruzje.ziv:
                 igrac.oruzje.ziv = False
                 self.brojac_kolizija += 1
-                print("doslo do ovde")
                 queueIgra.put(self.brojac_kolizija)
                 self._split_ball(index)
                 return True
-            if pygame.sprite.collide_rect(loptica, igrac):  #collide_mask
+            if pygame.sprite.collide_rect(loptica, igrac):
                 igrac.ziv = False
                 self._decrease_lives(igrac)
                 self._proveri_zivote()
@@ -142,9 +134,7 @@ class Igra:
             self.lopte.append(Lopta(lopta.rect.left - lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[-3, -math.fabs(math.sin((lopta.velicina-1)*3))]))
             self.lopte.append(Lopta(lopta.rect.left + lopta.velicina ** 2, lopta.rect.top -10, lopta.velicina - 1,[3, -math.fabs(math.sin((lopta.velicina-1)*3))]))
         del self.lopte[index_loptice]
-        print("doslo i do ovdee")
         self.bonus_tip =retQueueIgra.get()
-        print(self.bonus_tip) #ovde staneee zakuca
         if not self.bonus_tip == "Nista":
             bonus = Bonus(lopta.rect.centerx, lopta.rect.centery, self.bonus_tip)
             self.bonusi.append(bonus)
@@ -202,31 +192,25 @@ class Igra:
         x = 200
         y = 200
         self.preostalo_vreme = vreme
-        #x = 100
         for i in range(1, br_lopti+1):
-
-            #y = x/2 * math.fabs(math.sin(x)) + velicina
-            #y = int(y)
-            self.lopte.append(Lopta(x, y, velicina, [3, 1])) #velicina * math.fabs(math.sin(3))
+            self.lopte.append(Lopta(x, y, velicina, [3, 1]))
             x-=30
             y-=30
 
 def _drop_bonus(queueIgra, retQueueIgra):
-    #global retQueueIgra
     bonus_tip = None
     while True:
         rr = queueIgra.get()
         if not rr == "Izadji":
             brojac_kol = rr
-            if brojac_kol % 5 == 0:
+            if brojac_kol % 8 == 0:
                 bonus_tip = BONUS_VREME
-            elif brojac_kol % 11 == 0:
+            elif brojac_kol % 14 == 0:
                 bonus_tip = BONUS_ZIVOT
             else:
                 bonus_tip = "Nista"
             retQueueIgra.put(bonus_tip)
         else:
-            print("izlazi iz treceg procesa")
             pygame.quit()
             sys.exit()
             break
